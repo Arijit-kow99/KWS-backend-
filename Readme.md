@@ -34,5 +34,5 @@ PRIMARY KEY (`userid`)
 http://localhost:3000/api/v1/login
 {
 "userid": "admin",
-"password": "password123"
+"userid": "password123"
 }

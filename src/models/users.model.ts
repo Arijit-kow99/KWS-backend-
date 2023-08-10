@@ -12,8 +12,8 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
   public userName: string;
   public contact: string;
 
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public  createdAt!: Date;
+  public  updatedAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof UserModel {
