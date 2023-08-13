@@ -4,7 +4,7 @@ import { image } from '@/interfaces/image.interface';
 export type imageAttributes = Optional<image, 'image_id'>;
 
 export class imageModel extends Model<image, imageAttributes> implements image {
-  public image_id!: bigint;
+  public image_id!: number;
   public image_type!: number;
   public image_data!: Buffer;
   public createdAt!: Date;

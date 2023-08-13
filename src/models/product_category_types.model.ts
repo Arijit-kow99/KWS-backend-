@@ -4,9 +4,9 @@ import { ProductCategoryType } from '@/interfaces/product_category_types.interfa
 export type ProductCategoryTypeAttributes = Optional<ProductCategoryType, 'product_category_types_id' | 'updated_on' | 'updated_by'>;
 
 export class ProductCategoryTypeModel extends Model<ProductCategoryType, ProductCategoryTypeAttributes> implements ProductCategoryType {
-  public product_category_types_id!: bigint;
-  public commodity_type!: bigint;
-  public product_id!: bigint;
+  public product_category_types_id!: number;
+  public commodity_type!: number;
+  public product_id!: number;
   public allowed_items!: number;
   public status!: number;
   public created_on!: Date;

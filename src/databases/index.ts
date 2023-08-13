@@ -2,6 +2,11 @@ import Sequelize from 'sequelize';
 import { NODE_ENV, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_DATABASE } from '@config';
 import UserModel from '@models/users.model';
 import { logger } from '@utils/logger';
+import  CommodityModel  from '@/models/commodity.model';
+import imageModel from '@/models/image.model';
+import  ProductCommodityAssociationModel  from '@/models/product_commodity_association.model';
+import  ProductCategoryTypeModel  from '@/models/product_category_types.model';
+import  ProductModel  from '@/models/product.model';
 
 const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
   dialect: 'mysql',
@@ -36,6 +41,11 @@ sequelize.authenticate();
 
 const DB = {
   Users: UserModel(sequelize),
+  Products: ProductModel(sequelize),
+  Product_Commoditys: ProductCommodityAssociationModel(sequelize),
+  Product_Category_Types: ProductCategoryTypeModel(sequelize),
+  Images: imageModel(sequelize),
+  Commoditys: CommodityModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };

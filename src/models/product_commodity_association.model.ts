@@ -9,10 +9,10 @@ export class ProductCommodityAssociationModel extends Model<
   ProductCommodityAssociation,
   ProductCommodityAssociationAttributes
 > implements ProductCommodityAssociation {
-  public product_commodity_association_id!: bigint;
-  public commodity_id!: bigint;
-  public product_id!: bigint;
-  public product_category_types_id!: bigint;
+  public product_commodity_association_id!: number;
+  public commodity_id!: number;
+  public product_id!: number;
+  public product_category_types_id!: number;
   public measurement_unit!: string;
   public quantity!: number;
   public status!: number;
