@@ -12,10 +12,10 @@ class CommodityService {
     return allCommodities;
   }
 
-  public async findCommodityById(commodityId: number): Promise<Commodity> {
-    if (isEmpty(commodityId)) throw new HttpException(500, 'Invalid Commodity');
+  public async findCommodityById(commodity_id: number): Promise<Commodity> {
+    if (isEmpty(commodity_id)) throw new HttpException(500, 'Invalid Commodity');
 
-    const findCommodity: Commodity = await this.commodities.findByPk(commodityId);
+    const findCommodity: Commodity = await this.commodities.findByPk(commodity_id);
     if (!findCommodity) throw new HttpException(500, 'Commodity not found');
 
     return findCommodity;

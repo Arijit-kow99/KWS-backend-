@@ -3,11 +3,13 @@ import AuthRoute from '@routes/auth.route';
 import IndexRoute from '@routes/index.route';
 import UsersRoute from '@routes/users.route';
 import validateEnv from '@utils/validateEnv';
+import CommoditysRoute from './routes/commoditys.route';
 
 
 validateEnv();
 
 const app = new App([new IndexRoute(),
+new CommoditysRoute(),
 new UsersRoute(),
 new AuthRoute(),
 ]);
