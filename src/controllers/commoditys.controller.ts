@@ -36,6 +36,27 @@ class CommodityController {
             next(error)
         }
     };
+    public updateCommodity = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+          const commodityId = Number(req.params.id);
+          const commodityData: CreateCommodityDto = req.body;
+          const updatecommodityData: Commodity = await this.CommodityService.updateCommodity(commodityId, commodityData);
+    
+          res.status(200).json({ message: 'User successfully updated for ' + updatecommodityData.commodity_id });
+        } catch (error) {
+          next(error);
+        }
+      };
+      public deletecommodity = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+          const commodityId = Number(req.params.id);
+          const deletecommodityData: Commodity = await this.CommodityService.deleteCommodity(commodityId);
+    
+          res.status(200).json({ message: 'Commod deleted' });
+        } catch (error) {
+          next(error);
+        }
+      };
     
 }
 

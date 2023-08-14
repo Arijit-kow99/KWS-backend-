@@ -64,7 +64,7 @@ export default function (sequelize: Sequelize): typeof ProductModel {
       },
     },
     {
-      tableName: 'products',
+      tableName: 'product',
       sequelize,
       indexes: [
         // Create a unique index on product_code

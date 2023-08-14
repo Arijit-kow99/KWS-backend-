@@ -27,7 +27,7 @@ export default function (sequelize: Sequelize): typeof imageModel {
       },
     },
     {
-      tableName: 'images',
+      tableName: 'image',
       sequelize,
     },
   );

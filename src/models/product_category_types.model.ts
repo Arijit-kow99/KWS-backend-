@@ -60,7 +60,7 @@ export default function (sequelize: Sequelize): typeof ProductCategoryTypeModel 
       },
     },
     {
-      tableName: 'product_category_types',
+      tableName: 'product_category_type',
       sequelize,
     },
   );
