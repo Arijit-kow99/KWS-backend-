@@ -3,12 +3,21 @@ import { Commodity } from '@interfaces/commodity.interface';
 import { isEmpty } from '@utils/util';
 import DB from '@databases';
 import { CreateCommodityDto } from '@dtos/commoditys.dto';
+import commodityModel from '@/models/commodity.model';
+import imageModel from '@/models/image.model';
 
 class CommodityService {
   public commodities = DB.Commoditys;
 
   public async findAllCommodities(): Promise<Commodity[]> {
-    const allCommodities: Commodity[] = await this.commodities.findAll();
+    const allCommodities: Commodity[] = await this.commodities.findAll(
+    // eager loading   {
+    //   include:[
+    //     {model:commodity_type , as:'commoditytype'},
+    //     {model: imageModel ,as:'image'}
+    //   ]
+    // }
+    );
     return allCommodities;
   }
 
