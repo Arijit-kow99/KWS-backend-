@@ -8,16 +8,16 @@ import { logger } from '@/utils/logger';
 
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
-    logger.info("<===== Call Auth Middleware =======>")
-    const Authorization = (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
+    logger.info('<===== Call Auth Middleware =======>');
+    const Authorization = req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null;
 
     if (Authorization) {
       const secretKey: string = SECRET_KEY;
       const verificationResponse = verify(Authorization, secretKey) as DataStoredInToken;
       const userId = verificationResponse.id;
-      logger.info("Auth User Id : ",userId)
-      const findUser = await DB.Users.findByPk(userId);
-      logger.info("Find User : ", findUser)
+      logger.info('Auth User Id : ', userId);
+      const findUser = await DB.Customers.findByPk(userId);
+      logger.info('Find User : ', findUser);
 
       if (findUser) {
         req.user = findUser;

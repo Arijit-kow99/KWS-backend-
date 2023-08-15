@@ -29,15 +29,15 @@ export default function (sequelize: Sequelize): typeof ProductCategoryTypeModel 
       commodity_type: {
         type: DataTypes.BIGINT,
         references: {
-          model: 'commodity_types', // Replace with the actual table name of commodity 
-          key: 'commodity_type_id', // Replace with the actual primary key and its id 
+          model: 'commodity_types', // Replace with the actual table name of commodity
+          key: 'commodity_type_id', // Replace with the actual primary key and its id
         },
       },
       product_id: {
         type: DataTypes.BIGINT,
         references: {
-          model: 'product', 
-          key: 'product_id', 
+          model: 'product',
+          key: 'product_id',
         },
       },
       allowed_items: {
@@ -60,7 +60,7 @@ export default function (sequelize: Sequelize): typeof ProductCategoryTypeModel 
       },
     },
     {
-      tableName: 'product_category_type',
+      tableName: 'product_category_types',
       sequelize,
     },
   );
