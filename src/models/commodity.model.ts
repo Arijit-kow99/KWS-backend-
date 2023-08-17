@@ -42,35 +42,35 @@ export default function (sequelize: Sequelize): typeof CommodityModel {
         unique: true,
       },
       commodity_type_id: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.BIGINT,
       },
       image_id: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.BIGINT,
       },
       status: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.TINYINT,
       },
       created_on: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE,
       },
       created_by: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
       updated_on: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE,
       },
       updated_by: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
       commodity_code: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(30),
         unique: true,
       },
