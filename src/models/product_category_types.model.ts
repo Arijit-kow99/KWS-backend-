@@ -29,7 +29,7 @@ export default function (sequelize: Sequelize): typeof ProductCategoryTypeModel 
       commodity_type: {
         type: DataTypes.BIGINT,
         references: {
-          model: 'commodity_types', // Replace with the actual table name of commodity
+          model: 'commodity_type', // Replace with the actual table name of commodity
           key: 'commodity_type_id', // Replace with the actual primary key and its id
         },
       },
