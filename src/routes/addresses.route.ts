@@ -15,8 +15,8 @@ class AddressRoute implements Routes {
   }
 
   private initializeRoutes() {
-    console.log('Initializing routes...');
-    console.log('this.addressController:', this.addressController);
+    // console.log('Initializing routes...');
+    // console.log('this.addressController:', this.addressController);
     this.router.get(`${this.path}`,  this.addressController.getAddresses);
     this.router.get(`${this.path}/:id`,  this.addressController.getAddressById);
    this.router.get(`${this.path}/cus/:id`,  this.addressController.getjoinCustomerAndAddress);
