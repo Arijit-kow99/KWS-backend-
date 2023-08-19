@@ -10,14 +10,7 @@ class CommodityService {
   public commodities = DB.Commoditys;
 
   public async findAllCommodities(): Promise<Commodity[]> {
-    const allCommodities: Commodity[] = await this.commodities.findAll(
-    // eager loading   {
-    //   include:[
-    //     {model:commodity_type , as:'commoditytype'},
-    //     {model: imageModel ,as:'image'}
-    //   ]
-    // }
-    );
+    const allCommodities: Commodity[] = await this.commodities.findAll();
     return allCommodities;
   }
 
