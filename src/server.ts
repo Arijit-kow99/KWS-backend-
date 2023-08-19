@@ -5,9 +5,12 @@ import UsersRoute from '@routes/users.route';
 import validateEnv from '@utils/validateEnv';
 import CommoditysRoute from './routes/commoditys.route';
 import CustomerRoute from './routes/customer.router';
+import AddressRoute from './routes/addresses.route';
+import ProductsRoute from './routes/product.route';
+import CommodityTypeRoute from './routes/commodity_types.route';
 
 validateEnv();
 
-const app = new App([new IndexRoute(), new CommoditysRoute(), new UsersRoute(), new AuthRoute(), new CustomerRoute()]);
+const app = new App([new IndexRoute(), new CommoditysRoute(), new UsersRoute(), new AuthRoute(), new CustomerRoute(),new ProductsRoute,new AddressRoute(), new CommodityTypeRoute()]);
 
 app.listen();

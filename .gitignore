@@ -2,3 +2,4 @@ node_modules
 .vscode
 /src/logs
 node_modules
+.env.development.local

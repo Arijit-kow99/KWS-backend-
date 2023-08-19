@@ -8,6 +8,8 @@ import ProductCommodityAssociationModel from '@/models/product_commodity_associa
 import ProductCategoryTypeModel from '@/models/product_category_types.model';
 import ProductModel from '@/models/product.model';
 import CutomerModel from '@/models/customer.model';
+import  AddressModel  from '@/models/addresses.model';
+import  CommodityTypeModel  from '@/models/commodity_type.model';
 
 const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
   dialect: 'mysql',
@@ -48,6 +50,8 @@ const DB = {
   Images: imageModel(sequelize),
   Commoditys: CommodityModel(sequelize),
   Customers: CutomerModel(sequelize),
+  Addresses: AddressModel(sequelize),
+  commodityTypes:CommodityTypeModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };
