@@ -1,8 +1,6 @@
-import { Stock } from '@/interfaces/stock.interface';
+// Import necessary modules
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-
-// Define the Stock interface
-
+import { Stock } from '@interfaces/stock.interface';
 
 // Define the creation attributes for the Stock
 export type StockCreationAttributes = Optional<
@@ -21,7 +19,8 @@ export class StockModel extends Model<Stock, StockCreationAttributes> implements
   public created_by!: number;
   public updated_on!: Date;
   public updated_by!: number;
-  public effective_on!: Date;
+
+ 
 }
 
 // Define the initialization function for the Stock model
@@ -50,26 +49,22 @@ export default function (sequelize: Sequelize): typeof StockModel {
         type: DataTypes.INTEGER,
       },
       created_on: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE,
       },
       created_by: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
       updated_on: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE,
       },
       updated_by: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
-      effective_on: {
-        allowNull: false,
-        type: DataTypes.DATE,
       },
-    },
     {
       tableName: 'stock', // Make sure this matches your actual table name
       sequelize,

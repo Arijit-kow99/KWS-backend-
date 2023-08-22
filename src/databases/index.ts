@@ -10,6 +10,11 @@ import ProductModel from '@/models/product.model';
 import CutomerModel from '@/models/customer.model';
 import  AddressModel  from '@/models/addresses.model';
 import  CommodityTypeModel  from '@/models/commodity_type.model';
+import  StockModel  from '@/models/stock.model';
+import  OrderItemsModel  from '@/models/order_item.model';
+import  OrderModel  from '@/models/order.model';
+import OrderDetailModel  from '@/models/order_detail.model';
+import  OrderEventModel  from '@/models/order_event.model';
 import  DomainModel  from '@/models/domain.model';
 
 const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
@@ -54,6 +59,11 @@ const DB = {
   Addresses: AddressModel(sequelize),
   commodityTypes:CommodityTypeModel(sequelize),
   Domain:DomainModel(sequelize),
+  Stock:StockModel(sequelize),
+  Order_Item:OrderItemsModel(sequelize),
+  Order:OrderModel(sequelize),
+  Order_Detail:OrderDetailModel(sequelize),
+  Order_Event:OrderEventModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };

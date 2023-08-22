@@ -5,12 +5,18 @@ import DB from '@databases';
 import { CreateCommodityDto } from '@dtos/commoditys.dto';
 import commodityModel from '@/models/commodity.model';
 import imageModel from '@/models/image.model';
+import { QueryTypes } from 'sequelize';
 
 class CommodityService {
+  
   public commodities = DB.Commoditys;
+  private sequelize = DB.sequelize;
+  
 
   public async findAllCommodities(): Promise<Commodity[]> {
-    const allCommodities: Commodity[] = await this.commodities.findAll();
+    // const allCommodities: Commodity[] = await this.commodities.findAll();
+    let query = `Select * from commodity `;
+    const allCommodities: Commodity[] = await this.sequelize.query(query,{type: QueryTypes.SELECT} );
     return allCommodities;
   }
 

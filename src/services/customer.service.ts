@@ -1,27 +1,30 @@
 import { SECRET_KEY } from '@/config';
 import DB from '@/databases';
 import { HttpException } from '@/exceptions/HttpException';
-import { Cutomer, DataStoredInToken, TokenData } from '@/interfaces/customer.interfcae';
+import { Customer, DataStoredInToken, TokenData } from '@/interfaces/customer.interfcae';
 import { isEmpty } from '@/utils/util';
 import { compare, hash } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
+import { clearConfigCache } from 'prettier';
+import { isColString } from 'sequelize/types/utils';
+
 
 class CustomerService {
   public customer = DB.Customers;
 
   public async signup(userData: any): Promise<String> {
     if (isEmpty(userData)) throw new HttpException(400, 'Invalid user Data');
-    const findUser: Cutomer = await this.customer.findOne({ where: { customer_phone: userData.customer_phone } });
+    const findUser: Customer = await this.customer.findOne({ where: { customer_phone: userData.customer_phone } });
     if (findUser) throw new HttpException(500, `Your email ${userData.email} already exists`);
     const hashedPassword = await hash(userData.customer_password, 10);
-    const createUserData: Cutomer = await this.customer.create({ ...userData, customer_password: hashedPassword, reset_flag: 1, status: 1 });
+    const createUserData: Customer = await this.customer.create({ ...userData, customer_password: hashedPassword, reset_flag: 1, status: 1 });
     return `Your ${createUserData.customer_phone} is successfully Registerd`;
   }
 
   public async login(userData: any): Promise<any> {
     if (isEmpty(userData)) throw new HttpException(500, 'Invalid Credentials');
 
-    const findUser: Cutomer = await this.customer.findOne({ where: { customer_phone: userData.customer_phone } });
+    const findUser: Customer = await this.customer.findOne({ where: { customer_phone: userData.customer_phone } });
     if (!findUser) throw new HttpException(500, `Invalid Credentials`);
 
     const isPasswordMatching: boolean = await compare(userData.customer_password, findUser.customer_password);
@@ -30,12 +33,31 @@ class CustomerService {
     const tokenData = this.createToken(findUser);
     return { ...findUser, token: tokenData };
   }
-  public createToken(user: Cutomer): string {
+  public createToken(user: Customer): string {
     const dataStoredInToken: DataStoredInToken = { id: user.customer_id };
     const secretKey: string = SECRET_KEY;
     const expiresIn: number = 60 * 120;
 
     return sign(dataStoredInToken, secretKey);
+  }
+  public async changepassword(res: any ): Promise<any>{
+   
+    if(isEmpty(res)) throw new HttpException(500,'Invalid Customer');
+    const customerId=res.customer_id;
+    if (!customerId) throw new HttpException(500, 'Invalid Customer');
+    const findcustomer: any =await this.customer.findByPk(customerId);
+    if (!findcustomer) throw new HttpException(500,'Invalid Customer');
+    const isPasswordMatching : boolean = await compare(res.old_password , findcustomer.customer_password);
+ 
+    if (!isPasswordMatching) throw new HttpException(500,'Old Password entered is invalid');
+    
+    const hashedPassword = await hash(res.new_password, 10);
+    await this.customer.update({ customer_password: hashedPassword }, { where: { customer_id: customerId } });
+    return findcustomer;
+  };
+  public async findAllCustomer(): Promise<Customer[]> {
+    const allCustomer: Customer[] =await this.customer.findAll();
+    return allCustomer;
   }
 }
 export default CustomerService;

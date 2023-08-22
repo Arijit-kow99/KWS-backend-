@@ -50,7 +50,7 @@ export default function (sequelize: Sequelize): typeof ProductCommodityAssociati
       product_category_types_id: {
         type: DataTypes.BIGINT,
         references: {
-          model: 'product_category_types', // Replace with the actual table name
+          model: 'product_category_type', // Replace with the actual table name
           key: 'product_category_types_id', // Replace with the actual primary key
         },
       },

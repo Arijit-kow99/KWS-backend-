@@ -9,9 +9,7 @@ class AddressRoute implements Routes {
   public addressController = new AddressController();
 
   constructor() {
-    console.log('AddressRoute constructor');
-    
-    this.initializeRoutes();
+  this.initializeRoutes();
   }
 
   private initializeRoutes() {

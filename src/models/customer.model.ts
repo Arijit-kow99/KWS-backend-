@@ -1,9 +1,9 @@
-import { Cutomer } from '@/interfaces/customer.interfcae';
+import { Customer } from '@/interfaces/customer.interfcae';
 import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
 
-export type CustomerCreationAttributes = Optional<Cutomer, 'customer_id'>;
+export type CustomerCreationAttributes = Optional<Customer, 'customer_id'>;
 
-export class CutomerModel extends Model<Cutomer, CustomerCreationAttributes> implements Cutomer {
+export class CutomerModel extends Model<Customer, CustomerCreationAttributes> implements Customer {
   public customer_id: number;
   public customer_name: string;
   public customer_email: string;

@@ -14,6 +14,8 @@ class CustomerRoute implements Routes {
   private initializeRoutes() {
     this.router.post(`${this.path}/signup`, this.customerController.signUp);
     this.router.post(`${this.path}/login`, this.customerController.login);
+    this.router.post(`${this.path}/changepassword`, this.customerController.changepassword);
+    this.router.get(`${this.path}/`, this.customerController.getCustomer);
   }
 }
 
