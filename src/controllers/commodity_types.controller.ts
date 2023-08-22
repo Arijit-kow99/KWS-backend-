@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateCommodityTypeDto } from '@dtos/commodity_types.dto';
-import { CommodityType } from '@interfaces/commodity_types.interface';
+import { CommodityType } from '@interfaces/commodity_type.interface';
 import CommodityTypeService from '@services/commodity_types.service';
 
 class CommodityTypeController {
