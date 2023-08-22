@@ -1,9 +1,9 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { product } from '@/interfaces/product.interface';
+import {Product}  from '@/interfaces/product.interface';
 
-export type ProductAttributes = Optional<product, 'product_id' | 'product_code'>;
+export type ProductAttributes = Optional<Product, 'product_id' | 'product_code'>;
 
-export class ProductModel extends Model<product, ProductAttributes> implements product {
+export class ProductModel extends Model<Product, ProductAttributes> implements Product {
   public product_id!: number;
   public product_name!: string;
   public product_desc!: string;
@@ -16,8 +16,7 @@ export class ProductModel extends Model<product, ProductAttributes> implements p
   public updated_by!: number;
   public product_code!: string;
 
-  public createdAt!: Date;
-  public updatedAt!: Date;
+
 }
 
 export default function (sequelize: Sequelize): typeof ProductModel {

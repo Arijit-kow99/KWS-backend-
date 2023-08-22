@@ -49,7 +49,7 @@ const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
 sequelize.authenticate();
 
 const DB = {
-  Users: UserModel(sequelize),
+   Users: UserModel(sequelize),
   Products: ProductModel(sequelize),
   Product_Commoditys: ProductCommodityAssociationModel(sequelize),
   Product_Category_Types: ProductCategoryTypeModel(sequelize),
