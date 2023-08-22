@@ -1,8 +1,10 @@
+import { Customer } from '@/interfaces/customer.interfcae';
 import CustomerService from '@/services/customer.service';
 import { NextFunction, Request, Response } from 'express';
 
 class CustomerController {
   public customerService = new CustomerService();
+
 
   public signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -23,6 +25,25 @@ class CustomerController {
       next(error);
     }
   };
+  public changepassword =async (req: Request, res: Response, next: NextFunction)=>{
+    try{
+      const reqs= req.body;
+      const deleteCustomerData: any =await this.customerService.changepassword(reqs);
+
+      res.status(200).json({ message : 'Password changed succesfully'});
+    }catch (error){
+      next(error);
+    }
+  };
+  public getCustomer = async (req: Request, res: Response, next: NextFunction)=>{
+    try{
+        const findallcustomer: Customer[] = await this.customerService.findAllCustomer();
+
+        res.status(200).json(findallcustomer);
+    }catch(error){
+      next(error);
+    }
+};
 }
 
 export default CustomerController;

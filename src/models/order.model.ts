@@ -1,11 +1,10 @@
-// Import necessary modules
+
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Order } from '@interfaces/order.interface';
 
-// Define the creation attributes for the Order
+
 export type OrderCreationAttributes = Optional<Order, 'order_id' | 'created_on' | 'updated_on'>;
 
-// Define the Sequelize model for the Order
 export class OrderModel extends Model<Order, OrderCreationAttributes> implements Order {
   public order_id!: number;
   public order_code!: string;
@@ -26,7 +25,7 @@ export class OrderModel extends Model<Order, OrderCreationAttributes> implements
 
 }
 
-// Define the initialization function for the Order model
+
 export default function (sequelize: Sequelize): typeof OrderModel {
   OrderModel.init(
     {
