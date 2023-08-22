@@ -8,9 +8,11 @@ import CustomerRoute from './routes/customer.router';
 import AddressRoute from './routes/addresses.route';
 import ProductsRoute from './routes/product.route';
 import CommodityTypeRoute from './routes/commodity_types.route';
+import DomainRoute from './routes/domain.route';
 
 validateEnv();
 
-const app = new App([new IndexRoute(), new CommoditysRoute(), new UsersRoute(), new AuthRoute(), new CustomerRoute(),new ProductsRoute,new AddressRoute(), new CommodityTypeRoute()]);
+const app = new App([new IndexRoute(), new CommoditysRoute(), new UsersRoute(), new AuthRoute(), 
+    new CustomerRoute(),new ProductsRoute,new AddressRoute(), new CommodityTypeRoute(), new DomainRoute()]);
 
 app.listen();
