@@ -2,6 +2,7 @@ import { Address } from '@interfaces/addresses.interface';
 import DB from '@databases';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
+import { table } from 'console';
 
 class AddressService {
   public addresses = DB.Addresses;
@@ -19,23 +20,25 @@ class AddressService {
 
     return findAddress;
   }
+ 
 
-  public async getjoinCustomerAndAddress(customer_id: number): Promise<any> {
+
+ 
+  public async getAddressByCustId(customer_id: string): Promise<any> {
     let  r;
     try {
       const query = `
-      select a.*
-      from kws.address a, kws.customer b
-      where a.customer_id = b.customer_id
-      and b.customer_id =:customer_id;
+                                select  * 
+                          from kws.address
+                          where customer_id =?;
       `;
       const results = await (DB.sequelize as any).query(query, {
-        replacements: { customer_id },
-        type: (DB.sequelize as any).QueryTypes.SELECT,
-
+        replacements: [ customer_id ],
+       
+plain:false
       });
 r=results
-      console.log(results);
+      
       
     } catch (error) {
       console.error('Error executing raw SQL query:', error);
@@ -44,6 +47,8 @@ r=results
   }
 
   
+
+
 
   
   
@@ -58,6 +63,8 @@ r=results
     return createAddressData;
   }
 
+
+
   public async updateAddress(addressId: number, addressData: any): Promise<Address> {
     if (isEmpty(addressData)) throw new HttpException(500, 'Invalid Address');
 
@@ -70,6 +77,8 @@ r=results
     return updatedAddress;
   }
 
+
+  
   public async deleteAddress(addressId: number): Promise<Address> {
     if (isEmpty(addressId)) throw new HttpException(500, 'Invalid Address');
 
