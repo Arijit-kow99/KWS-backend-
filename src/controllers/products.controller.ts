@@ -50,6 +50,51 @@ class ProductsController {
       next(error);
     }
   };
+  // get all product with details
+
+public getProductInfo = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const productId = Number(req.params.productId);
+    const productInfo: any = await this.productService.getProductInfo(productId);
+
+    res.status(200).json(productInfo);
+  } catch (error) {
+    next(error);
+  }
+};
+// commodity with type
+public getCommoditiesByType = async (req: Request, res: Response) => {
+  try {
+    const structuredData = await this.productService.getCommoditiesByType();
+    res.json(structuredData);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+// product with data
+public getProductByStoke = async (req: Request, res: Response) => {
+  try {
+    const structuredData = await this.productService.getProductByStoke();
+    res.json(structuredData);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+//insert three data
+public createProductThree = async (req: Request, res: Response,next: NextFunction) => {
+  try {
+    const jsonData = req.body;
+    console.log("con:",jsonData)
+    await this.productService.insertOrderData(jsonData);
+    return res.status(200).json({ message: "Data inserted successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 }
 
 export default ProductsController;

@@ -15,11 +15,15 @@ class ProductsRoute implements Routes {
 
   private initializeRoutes() {
     this.router.get(`${this.path}`, this.productsController.getProducts);
-    this.router.get(`${this.path}/:id(\\d+)`, this.productsController.getProductById);
+    //this.router.get(`${this.path}/:id(\\d+)`, this.productsController.getProductById);
     this.router.post(`${this.path}`, validationMiddleware(CreateProductDto, 'body'), this.productsController.createProduct);
     this.router.put(`${this.path}/:id(\\d+)`, validationMiddleware(CreateProductDto, 'body', true), this.productsController.updateProduct);
+    this.router.get(`${this.path}/:productId(\\d+)`, this.productsController.getProductInfo);
     // this.router.delete(`${this.path}/:id(\\d+)`, this.productsController.deleteProduct);
     // Add other routes if needed
+    this.router.get('/getCommoditiesByType', this.productsController.getCommoditiesByType);
+    this.router.get('/products/getProductByStoke', this.productsController.getProductByStoke);
+    this.router.post('/admin/products/createProduct', this.productsController.createProductThree);
   }
 }
 

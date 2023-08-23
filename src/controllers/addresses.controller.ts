@@ -30,6 +30,10 @@ console.log(findAllAddressesData);
       next(error);
     }
   };
+
+
+  
+  
   
   public createAddress = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -41,6 +45,7 @@ console.log(findAllAddressesData);
       next(error);
     }
   };
+ 
 
   public updateAddress = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -64,18 +69,33 @@ console.log(findAllAddressesData);
       next(error);
     }
   };
-  public getjoinCustomerAndAddress = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const customer_id = Number(req.params.id);
-      console.log("cust_id" ,customer_id)
-      const joinedData = await this.addressService.getjoinCustomerAndAddress(customer_id);
-    
-      res.status(200).json(joinedData);
 
+
+
+  
+  public getAddressByCustId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const customer_id = String(req.params.customer_id);
+  
+      const addresses = await this.addressService.getAddressByCustId(customer_id);
+      
+      // Check if there are any addresses retrieved
+      if (addresses && addresses.length > 0) {
+        const singleAddress = addresses[0]; // Select the first address
+        
+        res.status(200).json(singleAddress);
+      } else {
+        res.status(404).json({ message: "Address not found" });
+      }
+  
     } catch (error) {
       next(error);
     }
   };
+
+
+  
+
 }
 
 export default AddressController;
