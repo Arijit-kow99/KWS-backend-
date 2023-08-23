@@ -161,6 +161,61 @@ public async getProductByStoke(): Promise<any> {
     throw error;
   }
 }
+public async insertOrderData  (jsonData:any) : Promise<any> {
+  
+console.log("insert",jsonData.product_name)
+  const productInsertQuery = `
+    INSERT INTO product (product_name, product_desc, max_allowed_items)
+    VALUES (?, ?, ?)
+  `;
+
+  const [productId] = await this.connection.query(productInsertQuery, {
+    replacements: [
+      jsonData.product_name,
+      jsonData.product_desc,
+      jsonData.max_allowed_items,
+    ],
+  });
+
+  console.log("Productid.......", productId);
+
+  for (const commodityItem of jsonData.comodity_item) {
+    const commodityTypeInsertQuery = `
+      INSERT INTO product_category_types(commodity_type_id, allowed_items, product_id)
+      VALUES (?, ?, ?)
+    `;
+
+    const [commodityTypeId] = await this.connection.query(commodityTypeInsertQuery, {
+      replacements: [
+        commodityItem.commodity_type,
+        commodityItem.allowed_items,
+        productId,
+      ],
+    });
+
+    console.log("commodityTypeId.......", commodityTypeId);
+
+    for (const commodity of commodityItem.comodity) {
+      console.log("commodity.......", commodity);
+      const commodityInsertQuery = `
+        INSERT INTO product_commodity_association (commodity_id,product_id, quantity, measurement_unit, product_category_types_id)
+        VALUES (?,?, ?, ?, ?)
+      `;
+
+      await this.connection.query(commodityInsertQuery, {
+        replacements: [
+          commodity.commodity_id,
+          productId,
+          commodity.quantity,
+          commodity.measurement_unit,
+          commodityTypeId,
+        ],
+      });
+    }
+  }
+
+  console.log("Data inserted successfully");
+};
 
 }
 export default ProductService;

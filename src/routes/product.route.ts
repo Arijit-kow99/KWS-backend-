@@ -23,6 +23,7 @@ class ProductsRoute implements Routes {
     // Add other routes if needed
     this.router.get('/getCommoditiesByType', this.productsController.getCommoditiesByType);
     this.router.get('/products/getProductByStoke', this.productsController.getProductByStoke);
+    this.router.post('/admin/products/createProduct', this.productsController.createProductThree);
   }
 }
 

@@ -82,6 +82,18 @@ public getProductByStoke = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+//insert three data
+public createProductThree = async (req: Request, res: Response,next: NextFunction) => {
+  try {
+    const jsonData = req.body;
+    console.log("con:",jsonData)
+    await this.productService.insertOrderData(jsonData);
+    return res.status(200).json({ message: "Data inserted successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 }
 
