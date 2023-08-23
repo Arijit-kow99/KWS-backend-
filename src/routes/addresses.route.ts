@@ -17,7 +17,7 @@ class AddressRoute implements Routes {
     // console.log('this.addressController:', this.addressController);
     this.router.get(`${this.path}`,  this.addressController.getAddresses);
     this.router.get(`${this.path}/:id`,  this.addressController.getAddressById);
-   this.router.get(`${this.path}/cus/:id`,  this.addressController.getjoinCustomerAndAddress);
+   this.router.get(`${this.path}/cust/:customer_id`,  this.addressController.getAddressByCustId);
     this.router.post(`${this.path}`,   this.addressController.createAddress);
     this.router.put(`${this.path}/:id`,  this.addressController.updateAddress);
     this.router.delete(`${this.path}/:id`,  this.addressController.deleteAddress);
