@@ -85,7 +85,8 @@ r=results
     const findAddress: Address = await this.addresses.findByPk(addressId);
     if (!findAddress) throw new HttpException(500, 'Invalid Address');
 
-    await this.addresses.destroy({ where: { address_id: addressId } });
+    await this.addresses.update({ status: 0 }, { where: { address_id: addressId } });
+
 
     return findAddress;
   }

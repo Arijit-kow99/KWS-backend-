@@ -71,20 +71,6 @@ console.log(findAllAddressesData);
   };
 
 
-  // public getAddressByCustId = async (req: Request, res: Response, next: NextFunction) => {
-  //   try {
-  //     const customer_id = String(req.params.customer_id);
-  
-  //     const joinedData = await this.addressService.getAddressByCustId(customer_id);
-  //     res.status(200).json(joinedData);
-
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
-
-
-
 
   
   public getAddressByCustId = async (req: Request, res: Response, next: NextFunction) => {
