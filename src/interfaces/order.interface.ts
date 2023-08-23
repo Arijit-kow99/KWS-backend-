@@ -15,3 +15,25 @@ export interface Order{
    updated_by: number;
    total_price: number;
 }
+
+export interface OrderInput {
+  payment_status: number;
+  payment_mode: number;
+  customer_id: number;
+  address_id: number;
+  // order_event_status?: number;
+  created_by: number; 
+  updated_by: number; 
+  total_price: number;
+
+  products: {
+    product_id: number;
+    quantity: number;
+    unit_price: number;
+    commodities: {
+      commodity_id: number;
+      measurement_unit: number;
+      quantity: number;
+    }[];
+  }[];
+}
