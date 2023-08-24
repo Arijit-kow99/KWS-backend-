@@ -10,6 +10,10 @@ import ProductModel from '@/models/product.model';
 import CutomerModel from '@/models/customer.model';
 import  AddressModel  from '@/models/addresses.model';
 import  CommodityTypeModel  from '@/models/commodity_type.model';
+import OrderModel  from '@/models/order.model';
+import  OrderItemsModel  from '@/models/order_item.model';
+import  OrderEventModel  from '@/models/order_event.model';
+import  OrderDetailModel  from '@/models/order_detail.model';
 
 const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
   dialect: 'mysql',
@@ -52,6 +56,10 @@ const DB = {
   Customers: CutomerModel(sequelize),
   Addresses: AddressModel(sequelize),
   commodityTypes:CommodityTypeModel(sequelize),
+  Order:OrderModel(sequelize),
+  Order_Detail:OrderDetailModel(sequelize),
+  Order_Item:OrderEventModel(sequelize),
+  Order_Event:OrderItemsModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };
