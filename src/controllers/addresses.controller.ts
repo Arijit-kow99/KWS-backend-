@@ -40,7 +40,7 @@ console.log(findAllAddressesData);
       const addressData: CreateAddressDto = req.body;
       const createAddressData: Address = await this.addressService.createAddress(addressData);
       console.log(createAddressData);
-      res.status(201).json({ message: 'Address successfully created id:'+createAddressData.address_id});
+      res.status(200).json({ message: 'Address successfully created id:'+createAddressData.address_id});
     } catch (error) {
       next(error);
     }
