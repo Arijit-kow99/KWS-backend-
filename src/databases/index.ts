@@ -14,6 +14,7 @@ import OrderModel  from '@/models/order.model';
 import  OrderItemsModel  from '@/models/order_item.model';
 import  OrderEventModel  from '@/models/order_event.model';
 import  OrderDetailModel  from '@/models/order_detail.model';
+import  StockModel  from '@/models/stock.model';
 
 const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
   dialect: 'mysql',
@@ -48,7 +49,7 @@ sequelize.authenticate();
 
 const DB = {
    Users: UserModel(sequelize),
-  Products: ProductModel(sequelize),
+  Product: ProductModel(sequelize),
   Product_Commoditys: ProductCommodityAssociationModel(sequelize),
   Product_Category_Types: ProductCategoryTypeModel(sequelize),
   Images: imageModel(sequelize),
@@ -60,6 +61,7 @@ const DB = {
   Order_Detail:OrderDetailModel(sequelize),
   Order_Item:OrderEventModel(sequelize),
   Order_Event:OrderItemsModel(sequelize),
+  Stock: StockModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };
