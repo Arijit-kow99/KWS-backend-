@@ -2,7 +2,26 @@ import { NextFunction, Request, Response } from 'express';
 import { CreateProductDto } from '@dtos/product.dto'; // Adjust the import path accordingly
 import { Product } from '@interfaces/product.interface'; // Adjust the import path accordingly
 import productService from '@services/product.service'; // Adjust the import path accordingly
+interface Commodity {
+  commodity_id: any;
+  commodity_name: any;
+  quantity: any;
+  measurement_unit: any;
+}
 
+interface CommodityType {
+  commodity_type_id: any;
+  commodity_type_name: any;
+  allowed_items: any;
+  commodities: Commodity[];
+}
+
+interface ProductInfo {
+  product_name: any;
+  product_desc: any;
+  max_allowed_items: any;
+  comodity_item: CommodityType[];
+}
 class ProductsController {
   public productService = new productService(); // Update the service name to match your product service
 
