@@ -17,10 +17,9 @@ class OrderRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}/:customer_id`,this.orderController.getordersbycustid);    
+    this.router.get(`${this.path}/cust/:customer_id`,this.orderController.getordersbycustid);    
     this.router.get(`${this.path}/:order_id`,this.orderController.getordersbyorderid);  
     this.router.post(`${this.path}/CreateOrder`,this.orderController.createOrder);  
   }
 }
-
 export default OrderRoute;

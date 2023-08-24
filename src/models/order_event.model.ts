@@ -30,15 +30,15 @@ export default function (sequelize: Sequelize): typeof OrderEventModel {
         type: DataTypes.BIGINT,
       },
       status: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
       created_on: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE,
       },
       created_by: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
     },

@@ -32,7 +32,7 @@ export default function (sequelize: Sequelize): typeof OrderDetailModel {
         type: DataTypes.BIGINT,
       },
       product_type: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
       order_id: {
