@@ -40,7 +40,7 @@ console.log(findAllAddressesData);
       const addressData: CreateAddressDto = req.body;
       const createAddressData: Address = await this.addressService.createAddress(addressData);
       console.log(createAddressData);
-      res.status(201).json({ message: 'Address successfully created id:'+createAddressData.address_id});
+      res.status(200).json({ message: 'Address successfully created id:'+createAddressData.address_id});
     } catch (error) {
       next(error);
     }
@@ -69,20 +69,6 @@ console.log(findAllAddressesData);
       next(error);
     }
   };
-
-
-  // public getAddressByCustId = async (req: Request, res: Response, next: NextFunction) => {
-  //   try {
-  //     const customer_id = String(req.params.customer_id);
-  
-  //     const joinedData = await this.addressService.getAddressByCustId(customer_id);
-  //     res.status(200).json(joinedData);
-
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
-
 
 
 

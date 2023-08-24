@@ -3,27 +3,9 @@ import DB from '@databases';
 import { isEmpty } from '@utils/util';
 import { QueryTypes } from 'sequelize';
 import orderModel, { OrderModel } from '@/models/order.model';
+import { OrderInput } from '@/interfaces/order.interface';
 
-interface OrderInput {
-  payment_status: number;
-  payment_mode: number;
-  customer_id: number;
-  address_id: number;
-  order_event_status?: number;
-  created_by: number; // This field is required for "created_by" column
-  updated_by: number; // This field is required for "updated_by" column
 
-  products: {
-    product_id: number;
-    quantity: number;
-    unit_price: number;
-    commodities: {
-      commodity_id: number;
-      measurement_unit: string;
-      quantity: number;
-    }[];
-  }[];
-}
 
 class OrderService {
   private sequelize = DB.sequelize;
@@ -62,7 +44,7 @@ class OrderService {
 
     const customerOrders = await this.sequelize.query(query, {
       replacements: { customerId },
-      type: QueryTypes.SELECT, mapToModel:true, model:this.order
+      type: QueryTypes.SELECT, mapToModel:true, model:this.order, plain:true
     });
       
     return customerOrders;
@@ -97,122 +79,95 @@ class OrderService {
 
     const Orders = await this.sequelize.query(query, {
       replacements: { orderid },
-      type: QueryTypes.SELECT, mapToModel:true, model:this.order
+      type: QueryTypes.SELECT, mapToModel:true, model:this.order,plain:true
     });
       
     return Orders;
   };
 
-  public async createOrder(orderInput: OrderInput): Promise<void> {
-    try {
-      const transaction = await this.sequelize.transaction();
-
-      try {
-        // Create the main order record using a raw SQL query
-        const mainOrderQuery = `
-        INSERT INTO "order" (payment_status, payment_mode, customer_id, address_id, status, total_price, created_on, created_by, updated_on, updated_by)
-        VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), ?);
-        `;
-
-        const [orderId] = await this.sequelize.query(mainOrderQuery, {
-          replacements: [
-            orderInput.payment_status,
-      orderInput.payment_mode,
-      orderInput.customer_id,
-      orderInput.address_id,
-      1, 
-      0, // Initial total price, calculate based on products
-      orderInput.created_by,
-      orderInput.updated_by, 
+  public async createOrder(orderInput:OrderInput,transaction): Promise<any> {
+    //calculating total price for oder table 
+    let totalprice = 0;
+    if(isEmpty(orderInput.products))
+    { totalprice=0
+    }else{
+      for (const product of orderInput.products)
+    {
+      totalprice += product.quantity * product.unit_price;
+    }
+    }
     
-          ],
-          type: QueryTypes.INSERT,
-          transaction,
-        });
 
-        // Calculate the total price based on products
-        let totalPrice = 0;
-        for (const product of orderInput.products) {
-          totalPrice += product.quantity * product.unit_price;
-        }
+    let ord={
+      payment_status: orderInput.payment_status,
+      payment_mode: orderInput.payment_mode,
+      customer_id: orderInput.customer_id, 
+      address_id: orderInput.address_id,   
+      created_by: orderInput.created_by,   
+      updated_by: orderInput.updated_by,   
+      total_price: totalprice,
+      status:1
+    };
+   
+    const createOrder = await this.order.create(ord,{transaction})
+    if(!createOrder) throw new HttpException(500,'could not place order');
+    // picking up the order_id from last insert 
+    const orderId = createOrder.order_id;
+// storing details of the product and calculating price of each product 
+let Product = [];
 
-        // Update the total price in the main order record
-        const updateTotalPriceQuery = `
-          UPDATE order
-          SET total_price = ?
-          WHERE order_id = ?;
-        `;
+for (const product of orderInput.products) {
+  const { product_id, quantity, unit_price } = product;
+  const productTotalPrice = quantity * unit_price;
 
-        await this.sequelize.query(updateTotalPriceQuery, {
-          replacements: [totalPrice, orderId],
-          type: QueryTypes.UPDATE,
-          transaction,
-        });
+  Product.push({
+    product_id,
+    quantity,
+    unit_price,
+    sub_total_price: productTotalPrice,
+    order_id: orderId // Assign the 'orderId' here
+  });
+}
+    // inserting the product details into 
+   const OrderDetails= await this.order_detail.bulkCreate(Product,{transaction})
+   if(!OrderDetails) throw new HttpException(500,'could not place order');
 
-        for (const product of orderInput.products) {
-          const orderDetailQuery = `
-            INSERT INTO order_details (product_id, order_id, product_type, quantity, unit_price, sub_total_price)
-            VALUES (?, ?, ?, ?, ?, ?);
-          `;
+//extracting all order_detail_ids 
+const orderDetailsIds = OrderDetails.map((orderDetail) => orderDetail.order_details_id);
+let Orderitems = [];
 
-          await this.sequelize.query(orderDetailQuery, {
-            replacements: [
-              product.product_id,
-              orderId,
-              0, // Replace with the actual product type
-              product.quantity,
-              product.unit_price,
-              product.quantity * product.unit_price,
-            ],
-            type: QueryTypes.INSERT,
-            transaction,
-          });
+// Iterate through 'orderInput.products'
+for (let i = 0; i < orderInput.products.length; i++) {
+  const product = orderInput.products[i];
+  const { product_id } = product;
 
-          // Insert order items records
-          for (const commodity of product.commodities) {
-            const orderItemsQuery = `
-              INSERT INTO order_items (order_details_id, commodity_id, measurement_unit, quantity)
-              VALUES (?, ?, ?, ?);
-            `;
+  if (!isEmpty(product.commodities)) {
+    for (const commodity of product.commodities) {
+      const { commodity_id, measurement_unit, quantity } = commodity;
 
-            await this.sequelize.query(orderItemsQuery, {
-              replacements: [
-                'LAST_INSERT_ID()',
-                commodity.commodity_id,
-                commodity.measurement_unit,
-                commodity.quantity,
-              ],
-              type: QueryTypes.INSERT,
-              transaction,
-            });
-          }
-        }
+      // Assign the 'order_details_id' corresponding to the current product
+      const order_details_id = orderDetailsIds[i];
 
-        // Insert order event record if provided
-        if (orderInput.order_event_status !== undefined) {
-          const orderEventQuery = `
-            INSERT INTO order_event (order_id, status, created_on, created_by)
-            VALUES (?, ?, ?, ?);
-          `;
-
-          await this.sequelize.query(orderEventQuery, {
-            replacements: [orderId, orderInput.order_event_status, new Date()],
-            type: QueryTypes.INSERT,
-            transaction,
-          });
-        }
-
-        // Commit the transaction
-        await transaction.commit();
-      } catch (error) {
-        // Rollback the transaction if an error occurs
-        await transaction.rollback();
-        throw error;
-      }
-    } catch (error) {
-      throw new HttpException(500, 'Failed to create an order');
+      Orderitems.push({
+        order_details_id, // Assign the 'order_details_id' here
+        commodity_id,
+        measurement_unit,
+        quantity,
+      });
     }
   }
+}
+    const OrderItems= await this.order_item.bulkCreate(Orderitems,{transaction})
+
+    const ordereventdetails = {
+      order_id: orderId // Assigning the orderId here
+    };
+    
+    const OrderEvent =await this.order_event.create(ordereventdetails,{transaction})
+    const successMessage = 'Order successfully placed';
+    return successMessage
+};
+
 }
 
 export default OrderService;
