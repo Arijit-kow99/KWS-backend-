@@ -16,7 +16,7 @@ export class AddressModel extends Model<Address, AddressAttributes> implements A
   public state: string;
   public country: string;
   public pin: string;
-  public status: number;
+  public status: null;
   public customer_id: number; 
 
   public  createdAt!: Date;
@@ -69,7 +69,7 @@ export default function (sequelize: Sequelize): typeof AddressModel {
         type: DataTypes.STRING(10),
       },
       status: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.TINYINT,
       },
       customer_id: {
