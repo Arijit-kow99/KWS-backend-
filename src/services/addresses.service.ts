@@ -28,10 +28,11 @@ class AddressService {
     let  r;
     try {
       const query = `
-                                select  * 
-                          from kws.address
-                          where customer_id =?;
-      `;
+              select  * 
+              from kws.address
+              where customer_id =?
+              and status =1;
+              `;
       const results = await (DB.sequelize as any).query(query, {
         replacements: [ customer_id ],
        
