@@ -37,3 +37,13 @@ export interface OrderInput {
     }[];
   }[];
 }
+
+
+export interface cartData{
+  products:product[];
+}
+
+export interface product{
+  product_id:number;
+  quantity:number;
+}

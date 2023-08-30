@@ -1,9 +1,11 @@
 import { HttpException } from '@exceptions/HttpException';
 import DB from '@databases';
 import { isEmpty } from '@utils/util';
-import { QueryTypes } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import orderModel, { OrderModel } from '@/models/order.model';
-import { OrderInput } from '@/interfaces/order.interface';
+import { OrderInput ,cartData , product } from '@/interfaces/order.interface';
+import { Stock } from '@/interfaces/stock.interface';
+import { ProductModel } from '@/models/product.model';
 
 
 
@@ -11,9 +13,10 @@ class OrderService {
   private sequelize = DB.sequelize;
   public order = DB.Order;
   public order_detail = DB.Order_Detail;
-  public order_item =DB.Order_Item;
-  public order_event= DB.Order_Event;
-
+  public order_item = DB.Order_Item;
+  public order_event = DB.Order_Event;
+  public  stock = DB.Stock;
+  public product = DB.Product;
 
   public async findAllOrderbycustomer(customerId: number): Promise<any> {
     if (isEmpty(customerId)) throw new HttpException(500, 'Invalid Customer id');
@@ -160,12 +163,87 @@ for (let i = 0; i < orderInput.products.length; i++) {
     const OrderItems= await this.order_item.bulkCreate(Orderitems,{transaction})
 
     const ordereventdetails = {
-      order_id: orderId // Assigning the orderId here
+      order_id: orderId // Assigning the orderId here again 
     };
     
     const OrderEvent =await this.order_event.create(ordereventdetails,{transaction})
     const successMessage = 'Order successfully placed';
     return successMessage
+};
+
+public async calculateorderprice(cartData: cartData): Promise<any> {
+  if (isEmpty(cartData) || !cartData.products || cartData.products.length === 0) {
+    throw new HttpException(500, 'Invalid Cart data');
+  }
+
+  // Fetch the current server date and time
+  const currentDate = new Date(); 
+
+  // Fetch stock details for all product IDs and effective_on date_time in a single query
+  const productIds = cartData.products.map((product) => product.product_id);
+
+  const stockDetails = await this.stock.findAll({
+    where: {
+      product_id: {
+        [Op.in]: productIds,
+      },
+      effective_on: {
+        [Op.lte]: currentDate, //  less than or equal to the current date
+      },
+    },
+    
+  });
+
+  // Map product IDs to their corresponding stock details
+  const stockMap = new Map<number, Stock>();
+  stockDetails.forEach((stockDetail) => {
+    stockMap.set(stockDetail.product_id, stockDetail);
+  });
+
+  // Initialize total discount and total price variables
+  let totalDiscount = 0;
+  let totalPrice = 0;
+
+
+  // Calculate discount, discount percentage, discounted price, total discount, and total price
+  const updatedCartData = cartData.products.map((cartProduct) => {
+    const stockDetail = stockMap.get(cartProduct.product_id);
+
+    if (!stockDetail) {
+      throw new HttpException(500, `Stock detail not found for product ${cartProduct.product_id}`);
+    }
+
+    const { mrp, selling_price } = stockDetail;
+
+    // Calculate discount
+    const discount = mrp - selling_price;
+
+    // Calculate discount percentage
+    const discountPercentage = ((discount / mrp) * 100).toFixed(2);
+
+    // Calculate discounted price
+    const discountedPrice = selling_price * cartProduct.quantity;
+
+    // Update total discount
+    totalDiscount += discount * cartProduct.quantity;
+
+    // Update total price
+    totalPrice += discountedPrice;
+
+    return {
+      product_id: cartProduct.product_id,
+      quantity: cartProduct.quantity,
+      discount,
+      discountPercentage,
+      discountedPrice,
+      
+    };
+  });
+
+  // Calculate the total discount percentage
+   let totalDiscountPercentage = ((totalDiscount / totalPrice) * 100).toFixed(2);
+
+  return { products: updatedCartData, totalDiscount, totalPrice, totalDiscountPercentage };
 };
 
 }
