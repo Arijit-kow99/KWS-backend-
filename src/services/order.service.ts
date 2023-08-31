@@ -226,7 +226,7 @@ public async calculateOrderPrice(cartData: cartData): Promise<{ products: Produc
         // Add to the total_price and total_discount
         total_price += productTotalPrice;
         total_discount += productTotalDiscount;
-
+        
         // Create a Product object with pricing details
         result.push({
           product_id: product_id,
