@@ -1,11 +1,13 @@
-export interface Stock {
+
+export interface Price {
     product_price_id: number;
     product_id: number;
-    
-    quantity: number;
+    mrp: number;
+    selling_price: number;
     created_on: Date;
     created_by: number;
     updated_on: Date;
     updated_by: number;
-    effective_on: Date;
+    start_date: Date;
+    end_date: Date;
   }

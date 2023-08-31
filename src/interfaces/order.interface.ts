@@ -46,4 +46,8 @@ export interface cartData{
 export interface product{
   product_id:number;
   quantity:number;
+  commodity: commodity[];
+}
+export interface commodity{
+  commodity_id:number;
 }

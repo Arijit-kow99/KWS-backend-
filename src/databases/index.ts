@@ -15,6 +15,7 @@ import  OrderItemsModel  from '@/models/order_item.model';
 import  OrderEventModel  from '@/models/order_event.model';
 import  OrderDetailModel  from '@/models/order_detail.model';
 import  StockModel  from '@/models/stock.model';
+import PriceModel  from '@/models/price.model';
 
 const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
   dialect: 'mysql',
@@ -62,6 +63,7 @@ const DB = {
   Order_Item:OrderEventModel(sequelize),
   Order_Event:OrderItemsModel(sequelize),
   Stock: StockModel(sequelize),
+  Price: PriceModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };

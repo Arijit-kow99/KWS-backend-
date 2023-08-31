@@ -54,7 +54,7 @@ class orderController {
         try{ 
             const cartData = (req.body)
             const product = (req.body)
-            const pricedetails : any =await this.OrderService.calculateorderprice(cartData);
+            const pricedetails : any =await this.OrderService.calculateOrderPrice(cartData);
         
             res.status(200).json(pricedetails);
            
