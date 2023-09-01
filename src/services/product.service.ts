@@ -189,7 +189,7 @@ public async insertOrderData(jsonData: ProductInfo): Promise<any> {
       commodityTypeInsertQuery,
       {
         replacements: [
-          commodityType.commodity_type_id, // Assuming this is the correct property
+          commodityType.commodity_type_id, 
           commodityType.allowed_items,
           productId,
         ],

@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateProductDto } from '@dtos/product.dto'; // Adjust the import path accordingly
 import { Product } from '@interfaces/product.interface'; // Adjust the import path accordingly
-import productService from '@services/product.service'; // Adjust the import path accordingly
+import productService from '@services/product.service';
+ // Adjust the import path accordingly
+
 interface Commodity {
   commodity_id: any;
   commodity_name: any;

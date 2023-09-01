@@ -10,6 +10,7 @@ import ProductsRoute from './routes/product.route';
 import CommodityTypeRoute from './routes/commodity_types.route';
 import DomainRoute from './routes/domain.route';
 import OrderRoute from './routes/order.route';
+import CommonRoute from './routes/common.route';
 
 validateEnv();
 
@@ -17,6 +18,6 @@ const app = new App([new IndexRoute(), new CommoditysRoute(),
     new UsersRoute(), new AuthRoute(), 
     new CustomerRoute()
     ,new ProductsRoute,new AddressRoute(), new CommodityTypeRoute(), new DomainRoute(),
-    new OrderRoute()]);
+    new OrderRoute(),new CommonRoute()]);
 
 app.listen();
