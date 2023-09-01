@@ -5,11 +5,13 @@ import { Product } from '@interfaces/product.interface'; // Adjust the import pa
 import { isEmpty } from '@utils/util';
 import { Sequelize } from 'sequelize';
 class ImageService {
-    public products = DB.Products; // Use the appropriate database model for products
+   // public products = DB.Products; // Use the appropriate database model for products
   public connection=DB.sequelize;
   public async getImageDataById(imageId: number): Promise<any> {
     try {
-      const queryResult: any = await this.connection.query(`SELECT image_data FROM image WHERE id = ${imageId}`);
+      console.log(imageId)
+      const queryResult: any = await this.connection.query(`SELECT image_data FROM image WHERE image_id = ${imageId}`);
+      
       if (queryResult && queryResult[0] && queryResult[0][0]) {
         return queryResult[0][0].image_data;
       }
