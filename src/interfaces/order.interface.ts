@@ -51,3 +51,5 @@ export interface product{
 export interface commodity{
   commodity_id:number;
 }
+
+
