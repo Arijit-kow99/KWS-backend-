@@ -16,7 +16,7 @@ class CommoditysRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`,  this.commoditysController.getCommodities);
+   //this.router.get(`${this.path}`,  this.commoditysController.getCommodities);
     this.router.get(`${this.path}/:commodity_id`,  this.commoditysController.getCommoditiesById);
     // this.router.post(`${this.path}`,  this.commoditysController.createCommodity);
     // this.router.put(`${this.path}/:id(\\d+)`,  validationMiddleware(CreateUserDto, 'body', true), this.usersController.updateUser);
