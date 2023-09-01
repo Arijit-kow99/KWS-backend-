@@ -1,4 +1,5 @@
 export interface Product {
+  commodity: any[];
   product_id: number;
   product_name: string;
   product_desc: string;
