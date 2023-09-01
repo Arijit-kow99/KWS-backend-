@@ -49,6 +49,19 @@ class orderController {
         }
     };
     
+    public OrderPrice = async ( req: Request , res : Response ,next:NextFunction) => {
+       
+        try{ 
+            const cartData = (req.body)
+            const product = (req.body)
+            const pricedetails : any =await this.OrderService.calculateOrderPrice(cartData);
+        
+            res.status(200).json(pricedetails);
+           
+        }catch(error){
+            next(error);
+        }
+    };
 
     
 }

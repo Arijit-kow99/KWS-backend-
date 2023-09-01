@@ -39,14 +39,7 @@ export default function (sequelize: Sequelize): typeof StockModel {
         allowNull: false,
         type: DataTypes.BIGINT,
       },
-      mrp: {
-        allowNull: false,
-        type: DataTypes.FLOAT,
-      },
-      selling_price: {
-        allowNull: false,
-        type: DataTypes.FLOAT,
-      },
+     
       quantity: {
         allowNull: false,
         type: DataTypes.INTEGER,

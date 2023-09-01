@@ -25,7 +25,7 @@ interface ProductInfo {
   comodity_item: CommodityType[];
 }
 class ProductService {
-  public products = DB.Products; // Use the appropriate database model for products
+  public products = DB.Product; // Use the appropriate database model for products
 public connection=DB.sequelize;
   public async findAllProducts(): Promise<Product[]> {
     const allProducts: Product[] = await this.products.findAll();
@@ -161,9 +161,9 @@ public async getProductByStoke(): Promise<any> {
     throw error;
   }
 }
-public async insertOrderData(jsonData: ProductInfo): Promise<any> {
-  console.log("insert", jsonData.product_name);
-
+public async insertOrderData  (jsonData:any) : Promise<any> {
+  
+console.log("insert",jsonData)
   const productInsertQuery = `
     INSERT INTO product (product_name, product_desc, max_allowed_items)
     VALUES (?, ?, ?)
@@ -178,31 +178,31 @@ public async insertOrderData(jsonData: ProductInfo): Promise<any> {
   });
 
   console.log("Productid.......", productId);
+  console.log("item.......", jsonData.comodity_item);
 
-  for (const commodityType of jsonData.comodity_item) {
+  for (const commodityItem of jsonData.comodity_item) {
     const commodityTypeInsertQuery = `
       INSERT INTO product_category_types(commodity_type_id, allowed_items, product_id)
       VALUES (?, ?, ?)
     `;
 
-    const [commodityTypeId] = await this.connection.query(
-      commodityTypeInsertQuery,
-      {
-        replacements: [
-          commodityType.commodity_type_id, 
-          commodityType.allowed_items,
-          productId,
-        ],
-      }
-    );
+    const [commodityTypeId] = await this.connection.query(commodityTypeInsertQuery, {
+      replacements: [
+        commodityItem.commodity_type_id,
+        commodityItem.allowed_items,
+        productId,
+      ],
+    });
 
     console.log("commodityTypeId.......", commodityTypeId);
+    console.log("commodityTypeId.......", commodityItem.commodities);
 
-    for (const commodity of commodityType.commodities) {
+
+    for (const commodity of commodityItem.commodities) {
       console.log("commodity.......", commodity);
       const commodityInsertQuery = `
-        INSERT INTO product_commodity_association (commodity_id, product_id, quantity, measurement_unit, product_category_types_id)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO product_commodity_association (commodity_id,product_id, quantity, measurement_unit, product_category_types_id)
+        VALUES (?,?, ?, ?, ?)
       `;
 
       await this.connection.query(commodityInsertQuery, {
@@ -218,8 +218,7 @@ public async insertOrderData(jsonData: ProductInfo): Promise<any> {
   }
 
   console.log("Data inserted successfully");
-}
-
+};
 
 }
 export default ProductService;
