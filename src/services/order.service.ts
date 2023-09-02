@@ -57,7 +57,7 @@ class OrderService {
     return customerOrders;
   }
 
-  public async findAllOrderbyorderid(orderid: number): Promise<any> {
+  public async getorderdetails(orderid: number): Promise<any> {
     if (isEmpty(orderid)) throw new HttpException(500, 'Invalid order id');
 
     const query = `

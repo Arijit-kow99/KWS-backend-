@@ -24,7 +24,7 @@ class orderController {
     public getordersbyorderid = async ( req: Request , res : Response ,next:NextFunction) => {
         try{ 
             const orderid = Number(req.params.order_id)
-            const findAllOrderData : any =await this.OrderService.findAllOrderbyorderid(orderid);
+            const findAllOrderData : any =await this.OrderService.getorderdetails(orderid);
 
             res.status(200).json(findAllOrderData);
            
