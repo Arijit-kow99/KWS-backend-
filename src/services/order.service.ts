@@ -180,125 +180,37 @@ public async calculateOrderPrice(cartData: cartData) {
   if (!cartData || !cartData.products || cartData.products.length === 0) {
     throw new HttpException(500, 'Invalid Cart data');
   }
-
-  // Fetch the current server date
-  const currentDate = new Date();
-
-  // Initialize total discount and total price variables
   let totalDiscount = 0;
+  let totalmrp = 0;
   let totalPrice = 0;
-
-  // Capture all product ids inside the order.
-  const productIds: number[] = cartData.products.map((product) => product.product_id);
-
-  // Creating a query for fetching product details
-  const products = await this.product.findAll({
-    where: {
-      product_id: productIds,
-    },
-  });
-
-  // Create a dictionary where keys are product_ids and values are product details
-  const productsById: { [key: number]: any } = {};
-  products.forEach((product) => {
-    productsById[product.product_id] = product;
-  });
-
-  // Create a query to fetch stock and price details for all products in cartdata
+  const productIds: number[] = cartData.products.map(product => product.product_id);
   const query = `
-    SELECT
-      p.product_id,
-      s.quantity AS stock_quantity,
-      pr.mrp,
-      pr.selling_price
-    FROM
-      product AS p
-    JOIN
-      stock AS s ON p.product_id = s.product_id
-    JOIN
-      price AS pr ON p.product_id = pr.product_id
-    WHERE
-      p.product_id IN (:productIds)
-  `;
+  SELECT
+    p.*,
+    s.quantity AS stock_quantity,
+    pr.mrp,
+    pr.selling_price
+  FROM
+    product AS p
+  JOIN
+    stock AS s ON p.product_id = s.product_id
+  JOIN
+    price AS pr ON p.product_id = pr.product_id
+  WHERE
+    p.product_id IN (?)
+`;
 
-  const customerOrders = await this.sequelize.query(query, {
-    replacements: { productIds }, // Pass the array of product_ids as replacements
+  let product: any[] = await this.sequelize.query(query, {
+    replacements: [productIds], // Pass the array of product_ids as replacements
     type: QueryTypes.SELECT,
   });
-
-  // Create an array to store the results including product details
-  const result: any[] = [];
-
-  // Create a Set to store unique commodities
-  const uniqueCommodities = new Set<number>();
-
-  // Iterate through each product in cartData
-  for (const cartProduct of cartData.products) {
-    const productId = cartProduct.product_id;
-
-    // Fetch the product details from the dictionary
-    const productDetails = productsById[productId];
-
-    // Find the corresponding order details for the product
-    const orderDetails = customerOrders.find((order) => order.product_id === productId);
-
-    if (!orderDetails) {
-      throw new HttpException(500, 'Product details not found');
-    }
-
-    const stockQuantity = orderDetails.stock_quantity;
-    const requiredQuantity = cartProduct.quantity;
-    const mrp = orderDetails.mrp;
-    const sellingPrice = orderDetails.selling_price;
-
-    if (stockQuantity >= requiredQuantity) {
-      // Sufficient stock available
-      const productTotalPrice = sellingPrice * requiredQuantity;
-      totalPrice += productTotalPrice;
-
-      // Calculate the total discount for this product
-      const productDiscount = (mrp - sellingPrice) * requiredQuantity;
-      totalDiscount += productDiscount;
-
-      // Create a dictionary to store commodity details for this product
-      const productCommodities: { [key: number]: any } = {};
-
-      // Add the commodities to the uniqueCommodities Set
-      if (cartProduct.commodities) {
-        cartProduct.commodities.forEach((commodityId) => {
-          uniqueCommodities.add(commodityId);
-
-          // Initialize the commodity details with empty values
-          productCommodities[commodityId] = {
-            commodity_name: '',
-            quantity: 0,
-            unit_name: '',
-          };
-        });
-      }
-
-      // Add the product details, calculated values, and commodity details to the result
-      result.push({
-        product_id: productId,
-        quantity: requiredQuantity,
-        product_name: productDetails.product_name,
-        productTotalPrice,
-        productDiscount,
-        commodities: productCommodities, // Initialize with empty commodity details
-      });
-    } else {
-      // Insufficient stock
-      throw new HttpException(500, `Insufficient stock for product ${productId}`);
-    }
-  }
-
-  // Create a query to fetch commodity details for uniqueCommodities
-  const uniqueCommoditiesArray = Array.from(uniqueCommodities);
+  let commodity: number[] = [];
+  cartData.products.forEach(m => m.commodities.forEach(n => commodity.push(n)));
   const queryForCommodities = `
     SELECT
       c.commodity_id,
       c.commodity_name,
-      pca.quantity,
+      pca.*,
       um.unit_name
     FROM
       commodity c
@@ -307,42 +219,20 @@ public async calculateOrderPrice(cartData: cartData) {
     JOIN
       unit_master um ON pca.measurement_unit = um.unit_master_id
     WHERE
-      c.commodity_id IN (:uniqueCommoditiesArray)
+      c.commodity_id IN (?)
   `;
-
-  // Fetch commodity details for uniqueCommoditiesArray
-  const commodityDetails = await this.sequelize.query(queryForCommodities, {
-    replacements: { uniqueCommoditiesArray }, // Pass the array of uniqueCommoditiesArray as replacements
+  const commodityDetails: any = await this.sequelize.query(queryForCommodities, {
+    replacements: [commodity], // Pass the array of uniqueCommoditiesArray as replacements
     type: QueryTypes.SELECT,
   });
-
-  // Iterate through each product's commodities and add their details to the result
-  for (const product of result) {
-    const commodities = product.commodities;
-
-    if (commodities) {
-      for (const commodityId in commodities) {
-        if (commodities.hasOwnProperty(commodityId)) {
-          const commodity = commodities[commodityId];
-          const commodityDetail = commodityDetails.find((commodity) => commodity.commodity_id === +commodityId);
-
-          if (commodityDetail) {
-            // Update commodity details in the product's commodity
-            commodity.commodity_name = commodityDetail.commodity_name;
-            commodity.quantity = commodityDetail.quantity;
-            commodity.unit_name = commodityDetail.unit_name;
-          }
-        }
-      }
-    }
-  }
-
-  // Calculate the total discount percentage
-  const totalDiscountPercentage = ((totalDiscount / totalPrice) * 100).toFixed(2);
-
-  // Return the calculated total price, total discount, total discount percentage, and product details
-  return { totalPrice, totalDiscount, totalDiscountPercentage, products: result };
-}
+  product.forEach(item => {
+    item.commodities = commodityDetails.filter(m => m.product_id == item.product_id);
+    totalPrice = totalPrice + item.selling_price;
+    totalmrp = totalmrp + item.mrp;
+    totalDiscount = totalDiscount + (totalmrp - totalPrice);
+  });
+  return { product: product, totalPrice, totalmrp, totalDiscount };
+};
 
 
 
