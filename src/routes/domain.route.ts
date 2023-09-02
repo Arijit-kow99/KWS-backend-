@@ -6,7 +6,7 @@ import domainController from '@/controllers/domain.controller';
 
 
 class DomainRoute implements Routes {
-  public path = '/paymentmethods';
+  public path = '/domain';
   public router = Router();
   public domainController = new domainController();
 
