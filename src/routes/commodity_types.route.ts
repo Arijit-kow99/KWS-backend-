@@ -18,7 +18,7 @@ class CommodityTypeRoute implements Routes {
     this.router.get(`${this.path}/:id(\\d+)`,  this.commodityTypeController.getCommodityTypeById);
     this.router.post(`${this.path}`,  this.commodityTypeController.createCommodityType);
     this.router.put(`${this.path}/:id(\\d+)`,   this.commodityTypeController.updateCommodityType);
-    this.router.delete(`${this.path}/:id(\\d+)`, this.commodityTypeController.deleteCommodityType);
+    this.router.post(`${this.path}/:id(\\d+)`, this.commodityTypeController.deleteCommodityType);
   }
 }
 

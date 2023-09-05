@@ -59,5 +59,21 @@ class CustomerService {
     const allCustomer: Customer[] =await this.customer.findAll();
     return allCustomer;
   }
+
+  public async updateCustomer(customerId: number, customerData: any): Promise<Customer> {
+    if (isEmpty(customerData)) throw new HttpException(500, 'Invalid Customer Data');
+
+    const findCustomer: Customer = await this.customer.findByPk(customerId);
+    if (!findCustomer) throw new HttpException(500, 'Customer not found');
+
+    await this.customer.update(customerData, { where: { customer_id: customerId } });
+
+    const updatedCustomer: Customer = await this.customer.findByPk(customerId);
+    return updatedCustomer;
+  }
+
+
+  
+
 }
 export default CustomerService;
