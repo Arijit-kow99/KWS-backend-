@@ -16,7 +16,7 @@ class CustomerRoute implements Routes {
     this.router.post(`${this.path}/login`, this.customerController.login);
     this.router.post(`${this.path}/changepassword`, this.customerController.changepassword);
     this.router.get(`${this.path}/`, this.customerController.getCustomer);
-    this.router.put(`${this.path}/cust/:id`, this.customerController.updateCustomer);
+    this.router.post(`${this.path}/cust/:id`, this.customerController.updateCustomer);
 
       }
 }
