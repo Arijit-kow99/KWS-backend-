@@ -20,11 +20,11 @@ class DomainService {
     //   },
     // });
     const query = `
-        SELECT * FROM domain
-        WHERE domain_type = :domain_type
+        SELECT domain_type FROM domain
+        WHERE domain_type =:domain_type ;
       `;
 
-      const [results, metadata] = await this.sequelize.query(query, {
+      const results = await this.sequelize.query(query, {
         replacements: { domain_type },
         type: QueryTypes.SELECT,
       });
