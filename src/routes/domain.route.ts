@@ -15,7 +15,7 @@ class DomainRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`,  this.domainController.getdomain);
+    this.router.get(`${this.path}/:domain_type`,  this.domainController.getdomain);
     
   }
 }
