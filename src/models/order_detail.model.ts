@@ -40,11 +40,11 @@ export default function (sequelize: Sequelize): typeof OrderDetailModel {
         type: DataTypes.BIGINT,
       },
       quantity: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
       unit_price: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.FLOAT,
       },
       sub_total_price: {
