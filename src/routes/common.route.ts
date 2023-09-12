@@ -23,6 +23,7 @@ public upload = multer({ storage: this.storage, limits: { fileSize: 2 * 1024 * 1
    
    // this.router.put(`${this.path}/:id(\\d+)`, validationMiddleware(CreateImageDto, 'body', true), this.productsController.updateProduct);
     this.router.get(`${this.path}/:id(\\d+)`, this.imageController.getImageById);
+    this.router.get(`${this.path}/commodity/:id(\\d+)`, this.imageController.getImageByCommodityId);
    
     
   //  this.router.get('/products/getProductByStoke', this.productsController.getProductByStoke);

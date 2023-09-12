@@ -5,11 +5,23 @@ import { Product } from '@interfaces/product.interface'; // Adjust the import pa
 import { isEmpty } from '@utils/util';
 import { Sequelize } from 'sequelize';
 class ImageService {
-    public products = DB.Products; // Use the appropriate database model for products
+   // public products = DB.Products; // Use the appropriate database model for products
   public connection=DB.sequelize;
   public async getImageDataById(imageId: number): Promise<any> {
     try {
       const queryResult: any = await this.connection.query(`SELECT image_data FROM image WHERE id = ${imageId}`);
+      if (queryResult && queryResult[0] && queryResult[0][0]) {
+        return queryResult[0][0].image_data;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error retrieving image:', error);
+      throw new Error('Internal server error');
+    }
+  }
+  public async getImageDataByCommodityId(commodityId: number): Promise<any> {
+    try {
+      const queryResult: any = await this.connection.query(`SELECT image_data FROM image,commodity WHERE image.id=commodity.image_id and commodity_id = ${commodityId}`);
       if (queryResult && queryResult[0] && queryResult[0][0]) {
         return queryResult[0][0].image_data;
       }
