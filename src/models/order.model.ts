@@ -19,6 +19,7 @@ export class OrderModel extends Model<Order, OrderCreationAttributes> implements
   public updated_on!: Date;
   public updated_by!: number;
   public total_price!: number;
+  commodity_id: any;
 }
 
 export default function (sequelize: Sequelize): typeof OrderModel {

@@ -6,7 +6,7 @@ import domainController from '@/controllers/domain.controller';
 
 
 class DomainRoute implements Routes {
-  public path = '/paymentmethods';
+  public path = '/domain';
   public router = Router();
   public domainController = new domainController();
 
@@ -15,7 +15,7 @@ class DomainRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`,  this.domainController.getdomain);
+    this.router.get(`${this.path}/:domain_type`,  this.domainController.getdomain);
     
   }
 }

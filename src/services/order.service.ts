@@ -11,12 +11,11 @@ import sequelize from 'sequelize';
 import ProductService from './product.service';
 
 
-
 class OrderService {
   private sequelize = DB.sequelize;
   public order = DB.Order;
   public order_detail = DB.Order_Detail;
-  public order_item = DB.Order_Item;
+  public order_items = DB.Order_Item;
   public order_event = DB.Order_Event;
   public stock = DB.Stock;
   public product = DB.Product;
@@ -27,14 +26,15 @@ class OrderService {
 
     const query = `
       SELECT
-        o.*,
-        od.order_details_id,
-        od.product_type,
+        o.order_id,
+        o.order_code,
+        o.created_on,
+        o.address_id,
+        o.expected_delivery_date,
+        od.product_id,
         od.quantity,
-        oi.order_items_id,
-        oi.measurement_unit AS commodity_measurement_unit,
-        c.commodity_id,
-        c.commodity_name
+        p.product_name
+      
         FROM
         \`order\` o
       INNER JOIN
@@ -42,7 +42,7 @@ class OrderService {
       INNER JOIN
         order_items oi ON od.order_details_id = oi.order_details_id
       INNER JOIN
-        commodity c ON oi.commodity_id = c.commodity_id
+        product p ON od.product_id = p.product_id 
       WHERE
         o.customer_id = :customerId
       ORDER BY
@@ -51,13 +51,25 @@ class OrderService {
 
     const customerOrders = await this.sequelize.query(query, {
       replacements: { customerId },
-      type: QueryTypes.SELECT, mapToModel:true, model:this.order, plain:true
+      type: QueryTypes.SELECT, mapToModel:true, model:this.order, plain:false
     });
+    const uniqueOrders = customerOrders.reduce((accumulator, order) => {
+      const existingOrder = accumulator.find((item) => item.order_id === order.order_id);
+      if (existingOrder) {
+        // Order ID already exists, merge the details
+        //existingOrder.quantity += order.quantity;
+      } else {
+        // Order ID doesn't exist, add it to the accumulator
+        accumulator.push(order);
+      }
+      return accumulator;
+    }, []);
+  
       
-    return customerOrders;
+    return uniqueOrders;
   }
 
-  public async findAllOrderbyorderid(orderid: number): Promise<any> {
+  public async getorderdetails(orderid: number): Promise<any> {
     if (isEmpty(orderid)) throw new HttpException(500, 'Invalid order id');
 
     const query = `
@@ -92,7 +104,7 @@ class OrderService {
     return Orders;
   };
 
-  public async createOrder(orderInput:OrderInput,transaction): Promise<any> {
+  public async createOrder(orderInput:any,transaction): Promise<any> {
     //calculating total price for oder table 
     let totalprice = 0;
     if(isEmpty(orderInput.products))
@@ -103,15 +115,44 @@ class OrderService {
       totalprice += product.quantity * product.unit_price;
     }
     }
-    
+// Function to generate a unique order code
+function generateRandomString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters.charAt(randomIndex);
+  }
+  return result;
+}
+
+// Function to generate an order code
+function generateOrderCode() {
+  const randomPart = generateRandomString(Math.floor(Math.random() * 2) + 4); // Generate 4-5 random characters
+  const datePart = new Date().getTime().toString().slice(-6); // Get the last 6 digits of the current timestamp
+  const orderCode = `BPK${randomPart}${datePart}`;
+  return orderCode;
+}
+
+// Generate an order code
+const orderCode = generateOrderCode();
+const d = new Date();
+
+const expectedDeliveryDate = new Date(d);
+expectedDeliveryDate.setDate(d.getDate() + 1)
 
     let ord={
-      payment_status: orderInput.payment_status,
-      payment_mode: orderInput.payment_mode,
+       // payment_status: orderInput.payment_status,
+       // payment_mode: orderInput.payment_mode,
+      order_code: orderCode,
       customer_id: orderInput.customer_id, 
       address_id: orderInput.address_id,   
-      created_by: orderInput.created_by,   
-      updated_by: orderInput.updated_by,   
+      payment_mode:1,
+      created_on:d,
+      expected_delivery_date: expectedDeliveryDate,
+
+      // created_by: orderInput.created_by,   
+     // updated_by: orderInput.updated_by,   
       total_price: totalprice,
       status:1
     };
@@ -140,289 +181,120 @@ for (const product of orderInput.products) {
    if(!OrderDetails) throw new HttpException(500,'could not place order');
 
 //extracting all order_detail_ids 
-const orderDetailsIds = OrderDetails.map((orderDetail) => orderDetail.order_details_id);
-let Orderitems = [];
 
-// Iterate through 'orderInput.products'
-for (let i = 0; i < orderInput.products.length; i++) {
-  const product = orderInput.products[i];
-  const { product_id } = product;
+ const orderDetailsIds = OrderDetails.map((orderDetail) => orderDetail.order_details_id);
+ let Orderitems = [];
 
-  if (!isEmpty(product.commodities)) {
+ // Iterate through 'orderInput.products'
+ for (let i = 0; i < orderInput.products.length; i++) {
+   const product = orderInput.products[i];
+   const { product_id } = product;
+   if (!isEmpty(product.commodities)) {
+    // Get the order_details_id corresponding to the current product
+    const order_details_id = orderDetailsIds[i];
+
     for (const commodity of product.commodities) {
       const { commodity_id, measurement_unit, quantity } = commodity;
 
-      // Assign the 'order_details_id' corresponding to the current product
-      const order_details_id = orderDetailsIds[i];
-
+      // Create an order_items entry for each commodity
       Orderitems.push({
-        order_details_id, // Assign the 'order_details_id' here
+        order_details_id,
         commodity_id,
         measurement_unit,
-        quantity,
+        quantity
       });
     }
   }
 }
-    const OrderItems= await this.order_item.bulkCreate(Orderitems,{transaction})
-
-    const ordereventdetails = {
-      order_id: orderId // Assigning the orderId here again 
-    };
+const createdOrderItems = await this.order_items.bulkCreate(Orderitems, { transaction });
+    const date = new Date();
+   const ordereventdetails = {
+      order_id: orderId, // Assigning the orderId here again 
+      created_on:date
+     };
     
     const OrderEvent =await this.order_event.create(ordereventdetails,{transaction})
     const successMessage = 'Order successfully placed';
-    return successMessage
+   return successMessage;
+ return successMessage;
 };
 
 
+public async calculateOrderPrice(cartData: cartData) {
+  if (!cartData || !cartData.products || cartData.products.length === 0) {
+    throw new HttpException(500, 'Invalid Cart data');
+  }
 
-//public async calculateOrderPrice(cartData: cartData): Promise<{ products: Product[]; total_price: number; total_discount: number }> {
+  let totalDiscount = 0;
+  let totalPrice = 0;
+  let totalmrp = 0;
 
-public async calculateOrderPric(cartData: cartData): Promise<any> {
-  const result: any[] = [];
-  let total_price = 0;
-  let total_discount = 0;
+  const productIds: number[] = cartData.products.map(product => product.product_id);
 
-  // Create an array to store product_ids for the products in cartData
-  const productIds: number[] = cartData.products.map((cartProduct) => cartProduct.product_id);
-
-  console.log(productIds);
-  // Query the stock table to check product availability and quantity for all products
   const query = `
-  SELECT product_id, quantity
-  FROM Stock
-  WHERE product_id IN (${productIds.join(', ')})
-`;
+    SELECT
+      p.*,
+      s.quantity AS stock_quantity,
+      pr.mrp,
+      pr.selling_price
+    FROM
+      product AS p
+    JOIN
+      stock AS s ON p.product_id = s.product_id
+    JOIN
+      price AS pr ON p.product_id = pr.product_id
+    WHERE
+      p.product_id IN (${productIds.join(',')})
+  `;
 
-// Execute the raw SQL query
-const stockInfoArray: any[] = await this.sequelize.query(query, {
-  type: sequelize.QueryTypes.SELECT,
-});
- 
-// Create a map to store stock information based on product_id
-//const stockInfoMap = {};
-// Wrap the single object in an array and then use forEach to iterate
-if (Array.isArray(stockInfoArray)) {
-  stockInfoArray.forEach((stockInfo) => {
-    stockInfo[stockInfo.product_id] = stockInfo.quantity;
+  let products: Product[] = await this.sequelize.query(query, {
+    type: QueryTypes.SELECT,
   });
-}
- 
 
-//   // Create a map to store commodity information based on product_id
-//   const commodityInfoMap: { [key: number]: any[] } = {};
+  let commodity: number[] = [];
+  cartData.products.forEach(m => m.commodities.forEach(n => commodity.push(n)));
 
-//   for (const cartProduct of cartData.products) {
-//     const product_id = cartProduct.product_id;
-//     const requiredQuantity = cartProduct.quantity;
+  const queryForCommodities = `
+    SELECT
+      c.commodity_id,
+      c.commodity_name,
+      pca.*,
+      um.unit_name
+    FROM
+      commodity c
+    JOIN
+      product_commodity_association pca ON c.commodity_id = pca.commodity_id
+    JOIN
+      unit_master um ON pca.measurement_unit = um.unit_master_id
+    WHERE
+      c.commodity_id IN (${commodity.join(',')})
+  `;
 
-//     // Get stock information for the current product from the map
-//     const stockInfo: Stock | undefined = stockInfoMap[product_id];
+  const commodityDetails: any = await this.sequelize.query(queryForCommodities, {
+    type: QueryTypes.SELECT,
+  });
 
-//     if (stockInfo && stockInfo.quantity >= requiredQuantity) {
-//       // Product is available and has sufficient quantity
-
-//       // Query the price table to get pricing information
-//       const priceInfo: any | null = await this.price.findOne({
-//         where: {
-//           product_id: product_id,
-//         },
-//       });
-
-//       if (priceInfo) {
-//         // Calculate selling price, discount, MRPs, and discount percentages
-//         const sellingPrice = priceInfo.selling_price;
-//         const discount = priceInfo.mrp - sellingPrice;
-//         const mrp = priceInfo.mrp;
-//         const discountPercentage = (discount / mrp) * 100;
-
-//         // Calculate the total price and total discount for this product
-//         const productTotalPrice = sellingPrice * requiredQuantity;
-//         const productTotalDiscount = discount * requiredQuantity;
-
-//         // Add to the total_price and total_discount
-//         total_price += productTotalPrice;
-//         total_discount += productTotalDiscount;
-
-//         // Create a Product object with pricing details
-//         const productDetails:any = {
-//           product_id: product_id,
-//           quantity: requiredQuantity,
-//           selling_price: sellingPrice,
-//           discount: discount,
-//           mrp: mrp,
-//           discount_percentage: discountPercentage,
-//           product_total_price: productTotalPrice,
-//           product_total_discount: productTotalDiscount,
-//         };
-
-//         // Push product details to the result array
-//         result.push(productDetails);
-
-//         // Query commodity information for the current product
-//         const commodityInfo: any[] = await this.fetchCommodityData(product_id);
-
-//         if (commodityInfo.length > 0) {
-//           // Store commodity information in the map
-//           commodityInfoMap[product_id] = commodityInfo;
-//         }
-//       }
-//     } else if (stockInfo && stockInfo.quantity > 0) {
-//       const availableQuantity = stockInfo.quantity;
-//       result.push({
-//         product_id: product_id,
-//         quantity: requiredQuantity,
-//         status: 'available with limited stock',
-//         available_quantity: availableQuantity,
-//       });
-//     } else {
-//       // Product is out of stock or has insufficient quantity
-//       result.push({
-//         product_id: product_id,
-//         quantity: requiredQuantity,
-//         status: 'out of stock',
-//       });
-//     }
-//   }
-
-//   // Merge the commodity information with the existing result
-//   for (const product of result) {
-//     if (commodityInfoMap[product.product_id]) {
-//       product.commodity = commodityInfoMap[product.product_id];
-//     }
-//   }
-
-//   // Add the result to the cartData's products array
-//   cartData.products = result;
-
-//   return { cartData, total_price: total_price, total_discount: total_discount };
-// }
-//   fetchStockInfo(productIds: any[]): Stock[] | PromiseLike<Stock[]> {
-//     throw new Error('Method not implemented.');
-//   }
-
-// // New function to fetch commodity information for a product
-// private async fetchCommodityData(product_id: number): Promise<any[]> {
-//   // Create a SQL query to fetch commodity data for the specified product
-//   const query = `
-//     SELECT 
-//       pca.product_id,
-//       c.commodity_id,
-//       c.commodity_name,
-//       pca.quantity,
-//       um.unit_name
-//     FROM product_commodity_association pca
-//     JOIN commodity c ON pca.commodity_id = c.commodity_id
-//     JOIN unit_master um ON pca.measurement_unit = um.unit_master_id
-//     WHERE pca.product_id = ${product_id}
-//   `;
-
-//   // Execute the query and retrieve the results
-//   const commodityData: any[] = await this.sequelize.query(query, {
-//     type: QueryTypes.SELECT,
-//   });
-
-//   return commodityData;
-};
-/*public async calculateorderprice(cartData: cartData): Promise<any> {
-  try {
-    if (!cartData || !cartData.products || cartData.products.length === 0) {
-      throw new HttpException(500, 'Invalid Cart data');
+  products.forEach(item => {
+    const cartItem = cartData.products.find(cartItem => cartItem.product_id === item.product_id);
+    if (cartItem) {
+      item.quantity = cartItem.quantity; // Set the ordered quantity for the product
     }
 
-    // Fetch the current server date
-    const currentDate = new Date();
+    item.commodities = commodityDetails.filter(m => m.product_id == item.product_id);
+    totalPrice = totalPrice + item.selling_price * item.quantity;
+    totalmrp = totalmrp + item.mrp * item.quantity;
+    totalDiscount = totalDiscount + ((item.mrp - item.selling_price) * item.quantity);
+  });
 
-    // Create an instance of the ProductService
-    const productService = new ProductService();
+  const totalDiscountPercentage = ((totalDiscount / totalmrp) * 100).toFixed(2);
 
-    // Initialize total discount and total price variables
-    let totalDiscount = 0;
-    let totalPrice = 0;
+  return { product: products, totalPrice, totalmrp, totalDiscount, totalDiscountPercentage };
+};
 
-    // Create an empty stockMap
-    const stockMap = new Map<number, Stock>();
 
-    // Fetch stock, price, and product details for all product IDs in a single query
-    const productIds = cartData.products.map((product) => product.product_id);
 
-    const stockAndPriceDetails = await this.sequelize.query(`
-      SELECT p.product_id, p.product_name, s.mrp, s.selling_price, pr.start_date, pr.end_date
-      FROM product p
-      JOIN stock s ON p.product_id = s.product_id
-      JOIN price pr ON p.product_id = pr.product_id
-      WHERE p.product_id IN (:productIds)
-        AND s.effective_on <= :currentDate
-        AND pr.start_date <= :currentDate
-        AND pr.end_date >= :currentDate
-      `, {
-        replacements: {
-          productIds,
-          currentDate,
-        },
-        type: QueryTypes.SELECT,
-        mapToModel:true,
-        model: this.product,
-      });
 
-    // Populate stockMap with stock and price details
-    stockAndPriceDetails.forEach((detail) => {
-      stockMap.set(detail.product_id, {
-        product_name: detail.product_name,
-        mrp: detail.mrp,
-        selling_price: detail.selling_price,
-      });
-    });
 
-    // Calculate discount, discount percentage, discounted price, total discount, and total price
-    const updatedCartData = await Promise.all(cartData.products.map(async (cartProduct) => {
-      const stockDetail = stockMap.get(cartProduct.product_id);
-
-      if (!stockDetail) {
-        throw new HttpException(500, `Stock and price detail not found for product ${cartProduct.product_id}`);
-      }
-
-      const { mrp, selling_price, product_name } = stockDetail;
-
-      // Calculate discount
-      const discount = mrp - selling_price;
-
-      // Calculate discount percentage
-      const discountPercentage = ((discount / mrp) * 100).toFixed(2);
-
-      // Calculate discounted price
-      const discountedPrice = (selling_price * cartProduct.quantity).toFixed(2);
-
-      // Update total discount
-      totalDiscount += discount * cartProduct.quantity;
-
-      // Update total price
-      totalPrice += parseFloat(discountedPrice);
-
-      return {
-        product_id: cartProduct.product_id,
-        product_name, // Use product_name from the stock and price details
-        quantity: cartProduct.quantity,
-        discount: parseFloat(discount.toFixed(2)),
-        discountPercentage: parseFloat(discountPercentage),
-        discountedPrice: parseFloat(discountedPrice),
-      };
-    }));
-
-    // Calculate the total discount percentage
-    let totalDiscountPercentage = ((totalDiscount / totalPrice) * 100).toFixed(2);
-
-    return {
-      products: updatedCartData,
-      totalDiscount: parseFloat(totalDiscount.toFixed(2)),
-      totalPrice: parseFloat(totalPrice.toFixed(2)),
-      totalDiscountPercentage: parseFloat(totalDiscountPercentage),
-    };
-  } catch (error) {
-    throw new HttpException(500, error.message);
-  }
-};*/
 public async orderprice(cartData: cartData)
 {
    // Hardcoded data

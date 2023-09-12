@@ -21,6 +21,7 @@ class OrderRoute implements Routes {
     this.router.get(`${this.path}/:order_id`,this.orderController.getordersbyorderid);  
     this.router.post(`${this.path}/CreateOrder`,this.orderController.createOrder);  
     this.router.post(`${this.path}/Calculateorderprice`,this.orderController.OrderPrice);  
+    this.router.post(`${this.path}/latestCalculateorderprice`,this.orderController.Orderlatest); 
   }
 }
 export default OrderRoute;

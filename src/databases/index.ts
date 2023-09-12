@@ -50,22 +50,22 @@ const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
 sequelize.authenticate();
 
 const DB = {
-    Users: UserModel(sequelize),
-   Product: ProductModel(sequelize),
-   Product_Commoditys: ProductCommodityAssociationModel(sequelize),
+  Users: UserModel(sequelize),
+  Product: ProductModel(sequelize),
+  Product_Commoditys: ProductCommodityAssociationModel(sequelize),
    Product_Category_Types: ProductCategoryTypeModel(sequelize),
-   Images: imageModel(sequelize),
-   Commoditys: CommodityModel(sequelize),
-   Customers: CutomerModel(sequelize),
-   Addresses: AddressModel(sequelize),
-   commodityTypes:CommodityTypeModel(sequelize),
-   Order:OrderModel(sequelize),
-   Order_Detail:OrderDetailModel(sequelize),
-   Order_Item:OrderEventModel(sequelize),
-   Order_Event:OrderItemsModel(sequelize),
-   Stock: StockModel(sequelize),
-  // Price: PriceModel(sequelize),
-   Domain:DomainModel(sequelize),
+  Images: imageModel(sequelize),
+  Commoditys: CommodityModel(sequelize),
+  Customers: CutomerModel(sequelize),
+  Addresses: AddressModel(sequelize),
+  commodityTypes:CommodityTypeModel(sequelize),
+  Order:OrderModel(sequelize),
+  Order_Detail:OrderDetailModel(sequelize),
+  Order_Item:OrderItemsModel(sequelize),
+  Order_Event:OrderEventModel(sequelize),
+  Stock: StockModel(sequelize),
+  Price: PriceModel(sequelize),
+  Domain:DomainModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };

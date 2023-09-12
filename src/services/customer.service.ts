@@ -14,10 +14,11 @@ class CustomerService {
 
   public async signup(userData: any): Promise<String> {
     if (isEmpty(userData)) throw new HttpException(400, 'Invalid user Data');
-    const findUser: Customer = await this.customer.findOne({ where: { customer_phone: userData.customer_phone } });
-    if (findUser) throw new HttpException(500, `Your email ${userData.email} already exists`);
-    const hashedPassword = await hash(userData.customer_password, 10);
-    const createUserData: Customer = await this.customer.create({ ...userData, customer_password: hashedPassword, reset_flag: 1, status: 1 });
+    //console.log("log......",userData)
+    const findUser: Customer = await this.customer.findOne({ where: { customer_phone: userData.data.customer_phone } });
+    if (findUser) throw new HttpException(501, `Your phoneno ${userData.data.customer_phone} already exists`);
+    const hashedPassword = await hash(userData.data.customer_password, 10);
+    const createUserData: Customer = await this.customer.create({ ...userData.data, customer_password: hashedPassword, reset_flag: 1, status: 1 });
     return `Your ${createUserData.customer_phone} is successfully Registerd`;
   }
 
@@ -59,5 +60,21 @@ class CustomerService {
     const allCustomer: Customer[] =await this.customer.findAll();
     return allCustomer;
   }
+
+  public async updateCustomer(customerId: number, customerData: any): Promise<Customer> {
+    if (isEmpty(customerData)) throw new HttpException(500, 'Invalid Customer Data');
+
+    const findCustomer: Customer = await this.customer.findByPk(customerId);
+    if (!findCustomer) throw new HttpException(500, 'Customer not found');
+
+    await this.customer.update(customerData, { where: { customer_id: customerId } });
+
+    const updatedCustomer: Customer = await this.customer.findByPk(customerId);
+    return updatedCustomer;
+  }
+
+
+  
+
 }
 export default CustomerService;

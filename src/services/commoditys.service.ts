@@ -14,9 +14,13 @@ class CommodityService {
   
 
   public async findAllCommodities(): Promise<Commodity[]> {
-    // const allCommodities: Commodity[] = await this.commodities.findAll();
-    let query = `Select * from commodity `;
-    const allCommodities: Commodity[] = await this.sequelize.query(query,{type: QueryTypes.SELECT} );
+     const allCommodities: Commodity[] = await this.commodities.findAll({
+      where:{
+        status :1
+      }
+     });
+    // let query = `Select * from commodity `;
+    // const allCommodities: Commodity[] = await this.sequelize.query(query,{type: QueryTypes.SELECT} );
     return allCommodities;
   }
 
@@ -39,7 +43,7 @@ class CommodityService {
   public async updateCommodity(
     commodityId: number,
     commodityData: CreateCommodityDto
-  ): Promise<Commodity> {
+  ): Promise<any> {
     if (isEmpty(commodityData)) throw new HttpException(500, 'Invalid Commodity Data');
 
     const findCommodity: Commodity = await this.commodities.findByPk(commodityId);
@@ -47,18 +51,22 @@ class CommodityService {
 
     await this.commodities.update(commodityData, { where: { commodity_id: commodityId } });
 
-    const updatedCommodity: Commodity = await this.commodities.findByPk(commodityId);
-    return updatedCommodity;
+   // const updatedCommodity: Commodity = await this.commodities.findByPk(commodityId);
+    const message  = "Commodity updated succesfully"; 
+   return message ;
   }
 
   public async deleteCommodity(commodityId: number): Promise<Commodity> {
     if (isEmpty(commodityId)) throw new HttpException(500, 'Invalid Commodity');
-
-    const findCommodity: Commodity = await this.commodities.findByPk(commodityId);
+  
+    const findCommodity: Commodity | null = await this.commodities.findByPk(commodityId);
     if (!findCommodity) throw new HttpException(500, 'Commodity not found');
-
-    await this.commodities.destroy({ where: { commodity_id: commodityId } });
-
+  
+    // Updating the status to 0
+    await this.commodities.update(
+      { status: 0 },
+      { where: { commodity_id: commodityId } }
+    );
     return findCommodity;
   }
 }

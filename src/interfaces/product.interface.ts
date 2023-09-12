@@ -1,5 +1,9 @@
 export interface Product {
-  commodity: any[];
+  mrp: number;
+  selling_price: number;
+  commodities: any;
+  quantity: number;
+  //commodity: number;
   product_id: number;
   product_name: string;
   product_desc: string;

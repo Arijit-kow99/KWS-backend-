@@ -11,8 +11,10 @@ class domainController {
 
   public getdomain = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const domain_type= String(req.params.type)
-      const findAlldomainData: any = await this.DomainService.findAllDomain();
+      
+      const domain_type= String(req.params.domain_type)
+      console.log(domain_type);
+      const findAlldomainData: any = await this.DomainService.findAllDomain(domain_type);
 
       res.status(200).json(findAlldomainData);
     } catch (error) {
