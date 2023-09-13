@@ -21,6 +21,18 @@ class ImageService {
       throw new Error('Internal server error');
     }
   }
+  public async getImageDataByCommodityId(commodityId: number): Promise<any> {
+    try {
+      const queryResult: any = await this.connection.query(`SELECT image_data FROM image,commodity WHERE image.id=commodity.image_id and commodity_id = ${commodityId}`);
+      if (queryResult && queryResult[0] && queryResult[0][0]) {
+        return queryResult[0][0].image_data;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error retrieving image:', error);
+      throw new Error('Internal server error');
+    }
+  }
   public async insertImage(imageBuffer: Buffer): Promise<any> {
     try {
       const result: any = await this.connection.query('INSERT INTO image ( image_data) VALUES ( ?)', {replacements:[imageBuffer]});

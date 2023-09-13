@@ -47,10 +47,11 @@ class CommodityTypeService {
     const findCommodityType: CommodityType = await this.commodityTypes.findByPk(commodityTypeId);
     if (!findCommodityType) throw new HttpException(500, 'Invalid CommodityType');
 
-    await this.commodityTypes.destroy({ where: { commodity_type_id: commodityTypeId } });
+    await this.commodityTypes.update({ status: 0 }, { where: {  commodity_type_id: commodityTypeId } });
 
     return findCommodityType;
   }
 }
 
 export default CommodityTypeService;
+

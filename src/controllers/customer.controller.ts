@@ -1,3 +1,4 @@
+import { CreateCustomerDto } from '@/dtos/customer.dto';
 import { Customer } from '@/interfaces/customer.interfcae';
 import CustomerService from '@/services/customer.service';
 import { NextFunction, Request, Response } from 'express';
@@ -43,6 +44,20 @@ class CustomerController {
     }catch(error){
       next(error);
     }
+};
+
+
+public updateCustomer = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const customerId = Number(req.params.id);
+    console.log(customerId)
+    const customerData: CreateCustomerDto = req.body;
+    const updatedCustomerData: Customer = await this.customerService.updateCustomer(customerId, customerData);
+
+    res.status(200).json({ message: 'Customer successfully updated'+ updatedCustomerData.customer_id });
+  } catch (error) {
+    next(error);
+  }
 };
 }
 

@@ -47,7 +47,7 @@ export default function (sequelize: Sequelize): typeof OrderItemsModel {
       },
       quantity: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
     },
     {

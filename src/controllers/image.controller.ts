@@ -22,6 +22,22 @@ class ImageController {
           res.status(500).send('Internal server error');
         }
       }
+      public getImageByCommodityId = async (req: Request, res: Response,next: NextFunction) =>{
+        const commodityId = parseInt(req.params.id, 10);
+    
+        try {
+          const imageBlob = await this.imageService.getImageDataByCommodityId(commodityId);
+          if (imageBlob) {
+            res.setHeader('Content-Type', 'image/jpeg');
+            res.send(imageBlob);
+          } else {
+            res.status(404).send('Image not found');
+          }
+        } catch (error) {
+          console.error('Error retrieving image:', error);
+          res.status(500).send('Internal server error');
+        }
+      }
       
       public uploadImage = async (req: any, res: Response, next: NextFunction) => {
         try {
