@@ -214,9 +214,9 @@ public async calculateOrderPrice(cartData: cartData) {
       um.unit_name
     FROM
       commodity c
-    JOIN
+    INNER JOIN
       product_commodity_association pca ON c.commodity_id = pca.commodity_id
-    JOIN
+    INNER JOIN
       unit_master um ON pca.measurement_unit = um.unit_master_id
     WHERE
       c.commodity_id IN (?)
@@ -225,8 +225,12 @@ public async calculateOrderPrice(cartData: cartData) {
     replacements: [commodity], // Pass the array of uniqueCommoditiesArray as replacements
     type: QueryTypes.SELECT,
   });
+  console.log(commodityDetails)
   product.forEach(item => {
-    item.commodities = commodityDetails.filter(m => m.product_id == item.product_id);
+    item.commodities = commodityDetails.filter(m =>
+      item.product_id == m.product_id &&
+      cartData.products.find(n =>
+         n.product_id == item.product_id).commodities.includes(m.commodity_id));
     totalPrice = totalPrice + item.selling_price;
     totalmrp = totalmrp + item.mrp;
     totalDiscount = totalDiscount + (totalmrp - totalPrice);

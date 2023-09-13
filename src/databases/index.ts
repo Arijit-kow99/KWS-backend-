@@ -64,7 +64,7 @@ const DB = {
   Order_Item:OrderEventModel(sequelize),
   Order_Event:OrderItemsModel(sequelize),
   Stock: StockModel(sequelize),
-  Price: PriceModel(sequelize),
+ // Price: PriceModel(sequelize),
   Domain:DomainModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
