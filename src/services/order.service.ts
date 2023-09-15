@@ -73,36 +73,125 @@ class OrderService {
     if (isEmpty(orderid)) throw new HttpException(500, 'Invalid order id');
 
     const query = `
-      SELECT
-        o.*,
-        od.order_details_id,
-        od.product_type,
-        od.quantity,
-        oi.order_items_id,
-        oi.measurement_unit AS commodity_measurement_unit,
-        c.commodity_id,
-        c.commodity_name
-        FROM
-        \`order\` o
-      INNER JOIN
-        order_details od ON o.order_id = od.order_id
-      INNER JOIN
-        order_items oi ON od.order_details_id = oi.order_details_id
-      INNER JOIN
-        commodity c ON oi.commodity_id = c.commodity_id
-      WHERE
-        o.order_id = :orderid
-      ORDER BY
-        o.created_on DESC;
-    `;
+    SELECT
+      o.order_id,
+      o.order_code,
+      o.created_on,
+      o.address_id,
+      o.expected_delivery_date,
+      od.product_id,
+      od.quantity,
+      oi.quantity,
+      c.commodity_name, 
+      um.unit_name as measurement_unit,
+      p.product_name, a.house_no,
+      a.address_line1,
+      a.address_line2,
+      a.city,
+      a.state,
+      a.country,
+      a.pin
+      FROM
+      \`order\` o
+    INNER JOIN
+      order_details od ON o.order_id = od.order_id
+    INNER JOIN
+      order_items oi ON od.order_details_id = oi.order_details_id
+    INNER JOIN
+      commodity c ON oi.commodity_id = c.commodity_id
+    INNER JOIN
+      unit_master um ON oi.measurement_unit = um.unit_master_id  
+    INNER JOIN
+      product p ON od.product_id = p.product_id 
+    LEFT JOIN
+      address a ON o.address_id = a.address_id
+    WHERE
+      o.order_id = :orderid
+    ORDER BY
+      o.created_on DESC;
+  `;
 
-    const Orders = await this.sequelize.query(query, {
-      replacements: { orderid },
-      type: QueryTypes.SELECT, mapToModel:true, model:this.order,plain:true
-    });
-      
-    return Orders;
-  };
+  const customerOrders = await this.sequelize.query(query, {
+    replacements: { orderid },
+    type: QueryTypes.SELECT, mapToModel:true, model:this.order, plain:false
+  });
+  // Create a map to group orders by their unique order_id
+const orderMap = new Map();
+
+customerOrders.forEach((item) => {
+  const {
+      order_id,
+      order_code,
+      created_on,
+      expected_delivery_date,
+      product_name,
+      product_id,
+      commodity_name,
+      measurement_unit,
+      quantity,
+      house_no,
+      address_line1,
+      address_line2,
+      city,
+      state,
+      country,
+      pin,
+  }:any = item;
+
+  if (!orderMap.has(order_id)) {
+      // Create a new order object if it doesn't exist in the map
+      orderMap.set(order_id, {
+          order_id,
+          order_code,
+          created_on,
+          expected_delivery_date,
+          products: [],
+          address: {
+              house_no,
+              address_line1,
+              address_line2,
+              city,
+              state,
+              country,
+              pin,
+          },
+      });
+  }
+
+  // Add the commodity to the products array of the order
+  const order = orderMap.get(order_id);
+  const existingProduct = order.products.find((p) => p.product_id === product_id);
+
+  if (existingProduct) {
+      // If the product already exists in the order, add the commodity to it
+      existingProduct.commodities.push({
+          commodity_id: item.commodity_id,
+          commodity_name,
+          measurement_unit,
+          quantity,
+      });
+  } else {
+      // If the product doesn't exist in the order, create a new product entry
+      order.products.push({
+          product_name,
+          product_id,
+          commodities: [
+              {
+                  commodity_id: item.commodity_id,
+                  commodity_name,
+                  measurement_unit,
+                  quantity,
+              },
+          ],
+      });
+  }
+});
+
+// Convert the map values to an array to get the final result
+const resultArray = Array.from(orderMap.values());
+    
+  return resultArray;
+  }
 
   public async createOrder(orderInput:any,transaction): Promise<any> {
     //calculating total price for oder table 
