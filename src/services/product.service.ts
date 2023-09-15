@@ -3,6 +3,7 @@ import { CreateProductDto } from '@dtos/product.dto'; // Adjust the import path 
 import { HttpException } from '@exceptions/HttpException';
 import { Product } from '@interfaces/product.interface'; // Adjust the import path accordingly
 import { isEmpty } from '@utils/util';
+import {  } from 'sequelize';
 import { Sequelize } from 'sequelize';
 interface Commodity {
   commodity_id: any;
@@ -28,14 +29,14 @@ class ProductService {
   public products = DB.Product; // Use the appropriate database model for products
 public connection=DB.sequelize;
   public async findAllProducts(): Promise<Product[]> {
-    const allProducts: Product[] = await this.products.findAll();
+    const allProducts: any = await this.products.findAll();
     return allProducts;
   }
 
   public async findProductById(productId: number): Promise<Product> {
     if (isEmpty(productId)) throw new HttpException(500, 'Invalid Product');
 
-    const findProduct: Product = await this.products.findByPk(productId);
+    const findProduct: any = await this.products.findByPk(productId);
     if (!findProduct) throw new HttpException(500, 'Invalid Product');
 
     return findProduct;
@@ -46,19 +47,19 @@ public connection=DB.sequelize;
 
   
 
-    const createProductData: Product = await this.products.create(productData);
+    const createProductData: any = await this.products.create(productData);
     return createProductData;
   }
 
   public async updateProduct(productId: number, productData: any): Promise<Product> {
     if (isEmpty(productData)) throw new HttpException(400, 'Product data cannot be empty');
 
-    const foundProduct: Product = await this.products.findByPk(productId);
+    const foundProduct: any = await this.products.findByPk(productId);
     if (!foundProduct) throw new HttpException(404, 'Product not found');
 
     await this.products.update(productData, { where: { product_id: productId } });
 
-    const updatedProduct: Product = await this.products.findByPk(productId);
+    const updatedProduct: any = await this.products.findByPk(productId);
     
     return updatedProduct;
   }
@@ -92,8 +93,10 @@ public async getProductInfo(productId: number): Promise<any> {
 
   for (const commodityType of commodityTypes) {
     const commoditySelectQuery = `
-      SELECT pca.*,commodity_name  FROM product_commodity_association pca,commodity c
-      WHERE c.commodity_id=pca.commodity_id and product_category_types_id in(?) and product_id in(?)
+      SELECT pca.*,commodity_name ,unit_name FROM product_commodity_association pca,commodity c,unit_master u
+      WHERE c.commodity_id=pca.commodity_id 
+      u.unit_master_id = pca.measurement_unit
+      and product_category_types_id in(?) and product_id in(?)
     `;
 
     const [commodities]: any = await this.connection.query(commoditySelectQuery, {
@@ -111,7 +114,7 @@ public async getProductInfo(productId: number): Promise<any> {
         commodity_id: commodity.commodity_id,
         commodity_name: commodity.commodity_name,
         quantity: commodity.quantity,
-        measurement_unit: commodity.measurement_unit
+        measurement_unit: commodity.unit_name
       }))
     };
 
