@@ -106,6 +106,7 @@ class OrderService {
 
   public async createOrder(orderInput:any,transaction): Promise<any> {
     //calculating total price for oder table 
+    console.log("i am orderinput",orderInput.products)
     let totalprice = 0;
     if(isEmpty(orderInput.products))
     { totalprice=0
@@ -113,6 +114,7 @@ class OrderService {
       for (const product of orderInput.products)
     {
       totalprice += product.quantity * product.unit_price;
+      console.log("i am totalprice",totalprice)
     }
     }
 // Function to generate a unique order code
@@ -216,7 +218,7 @@ const createdOrderItems = await this.order_items.bulkCreate(Orderitems, { transa
     const OrderEvent =await this.order_event.create(ordereventdetails,{transaction})
     const successMessage = 'Order successfully placed';
    return successMessage;
- return successMessage;
+ 
 };
 
 
@@ -228,7 +230,7 @@ public async calculateOrderPrice(cartData: cartData) {
   let totalDiscount = 0;
   let totalPrice = 0;
   let totalmrp = 0;
-
+  let totalDiscountPercentage = 0;
   const productIds: number[] = cartData.products.map(product => product.product_id);
 
   const query = `
@@ -262,9 +264,9 @@ public async calculateOrderPrice(cartData: cartData) {
       um.unit_name
     FROM
       commodity c
-    JOIN
+    INNER JOIN
       product_commodity_association pca ON c.commodity_id = pca.commodity_id
-    JOIN
+    INNER JOIN
       unit_master um ON pca.measurement_unit = um.unit_master_id
     WHERE
       c.commodity_id IN (${commodity.join(',')})
@@ -273,22 +275,41 @@ public async calculateOrderPrice(cartData: cartData) {
   const commodityDetails: any = await this.sequelize.query(queryForCommodities, {
     type: QueryTypes.SELECT,
   });
-
+  
   products.forEach(item => {
-    const cartItem = cartData.products.find(cartItem => cartItem.product_id === item.product_id);
-    if (cartItem) {
-      item.quantity = cartItem.quantity; // Set the ordered quantity for the product
+    const productInCart = cartData.products.find(p => p.product_id === item.product_id);
+  
+    if (productInCart) {
+      const { quantity } = productInCart;
+      item.commodities = commodityDetails.filter(m =>
+        item.product_id === m.product_id &&
+        cartData.products.find(n => n.product_id === item.product_id).commodities.includes(m.commodity_id)
+      );
+      
+      totalPrice += item.selling_price * quantity; // Multiply by quantity
+      totalmrp += item.mrp * quantity; // Multiply by quantity
+    }
+  });
+  
+  totalDiscount = totalmrp - totalPrice;
+  totalDiscountPercentage = ((totalDiscount / totalmrp) * 100).toFixed(2);
+ 
+  const resultProducts = products.map(item => {
+    const productInCart = cartData.products.find(p => p.product_id === item.product_id);
+
+    if (productInCart) {
+      const { quantity, id } = productInCart;
+      return {
+        ...item,
+        quantity,
+        id,
+      };
     }
 
-    item.commodities = commodityDetails.filter(m => m.product_id == item.product_id);
-    totalPrice = totalPrice + item.selling_price * item.quantity;
-    totalmrp = totalmrp + item.mrp * item.quantity;
-    totalDiscount = totalDiscount + ((item.mrp - item.selling_price) * item.quantity);
+    return item;
   });
 
-  const totalDiscountPercentage = ((totalDiscount / totalmrp) * 100).toFixed(2);
-
-  return { product: products, totalPrice, totalmrp, totalDiscount, totalDiscountPercentage };
+  return { product: resultProducts, totalPrice, totalmrp, totalDiscount, totalDiscountPercentage };
 };
 
 

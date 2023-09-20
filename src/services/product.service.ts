@@ -94,7 +94,7 @@ public async getProductInfo(productId: number): Promise<any> {
   for (const commodityType of commodityTypes) {
     const commoditySelectQuery = `
       SELECT pca.*,commodity_name ,unit_name FROM product_commodity_association pca,commodity c,unit_master u
-      WHERE c.commodity_id=pca.commodity_id 
+      WHERE c.commodity_id=pca.commodity_id and
       u.unit_master_id = pca.measurement_unit
       and product_category_types_id in(?) and product_id in(?)
     `;
